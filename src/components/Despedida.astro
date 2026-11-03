@@ -1,7 +1,7 @@
 ---
 // src/components/Despedida.astro
 // Cierre de la invitación: "Confirmar Asistencia" arriba, el mismo sobre
-// de la portada con la tarjeta bordó por delante (el pedido, "¡Te
+// de la portada con la tarjeta bordó por delante ("¡Te
 // esperamos!" y el botón que abre WhatsApp) y, al pie, los nombres.
 //
 // El sello de lacre es parte de la imagen del sobre; para que quede POR
@@ -23,7 +23,6 @@ import { tamanoNombres } from "../scripts/tamanoNombres";
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
 const titulo = "Confirmar Asistencia";
-const pedido = ["Por favor confirma antes del", "18 de agosto"];
 const frase = "Será un honor contar con tu presencia";
 const esperamos = "¡Te esperamos!";
 const novios = "Roy & Nagely";
@@ -89,10 +88,6 @@ const pase =
 
 <section id="despedida" class="seccion">
     <p class="titulo font-great-vibes">{titulo}</p>
-    <p class="pedido">
-        <span>{pedido[0]}</span>
-        <span>{pedido[1]}</span>
-    </p>
 
     <div id="grupo-despedida" class="grupo">
         <!-- El sobre, con sus flores, monograma y sello -->
@@ -152,7 +147,7 @@ const pase =
 
             <!-- Flor colgando en la esquina de abajo a la derecha -->
             <img
-                src="/imagenes/florabajo.png"
+                src="/imagenes/florabajonuevo.png"
                 alt=""
                 width="538"
                 height="1204"
@@ -210,22 +205,9 @@ const pase =
         /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
         padding: 0 4cqw;
         display: inline-block;
-        color: #5b6440;
+        color: #9a7433;
         font-size: 12cqw;
         line-height: 1.15;
-    }
-
-    .pedido {
-        margin: 3cqw 0 0;
-        font-family: "Cinzel", serif;
-        font-size: 4.2cqw;
-        line-height: 1.35;
-        letter-spacing: 0.03em;
-        color: #6e5a52;
-    }
-
-    .pedido span {
-        display: block;
     }
 
     /* ── Sobre + tarjeta ────────────────────────────────────── */
@@ -269,7 +251,7 @@ const pase =
         font-weight: 700;
         font-size: 4.8cqw;
         line-height: 1;
-        color: #a3303d;
+        color: #7c8754;
         pointer-events: none;
     }
 
@@ -288,7 +270,7 @@ const pase =
         left: 0;
         z-index: 3;
         pointer-events: none;
-        clip-path: ellipse(10% 14.5% at 51.2% 64.8%);
+        clip-path: ellipse(10.6% 14.5% at 51.7% 64.4%);
         filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
     }
 
@@ -314,8 +296,8 @@ const pase =
                 rgba(255, 255, 255, 0.06) 0%,
                 rgba(255, 255, 255, 0) 60%
             ),
-            linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
-        box-shadow: 0 12px 26px rgba(70, 20, 30, 0.3);
+            linear-gradient(180deg, #6f7a4a 0%, #667043 100%);
+        box-shadow: 0 12px 26px rgba(70, 78, 46, 0.3);
     }
 
     .t-frase {
@@ -362,7 +344,7 @@ const pase =
         border-radius: 50%;
         font-size: 3.4cqw;
         line-height: 1;
-        color: #7a2335;
+        color: #6f7a4a;
         background-image: linear-gradient(#efe8d6, #efe8d6);
     }
 
@@ -414,7 +396,7 @@ const pase =
         white-space: nowrap;
         text-align: center;
         text-decoration: none;
-        color: #6f1f30;
+        color: #667043;
         background-image: linear-gradient(
             180deg,
             #f3e3bd 0%,
@@ -423,7 +405,7 @@ const pase =
         );
         box-shadow:
             inset 0 0 0 1px rgba(255, 250, 235, 0.7),
-            0 4px 12px rgba(40, 8, 15, 0.35);
+            0 4px 12px rgba(36, 40, 22, 0.35);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -457,7 +439,7 @@ const pase =
         transform: scale(0.97);
         box-shadow:
             inset 0 0 0 1px rgba(255, 250, 235, 0.7),
-            0 2px 6px rgba(40, 8, 15, 0.3);
+            0 2px 6px rgba(36, 40, 22, 0.3);
     }
 
     /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
@@ -535,7 +517,7 @@ const pase =
         align-items: baseline;
         justify-content: center;
         gap: 2.6cqw;
-        color: #7a2335;
+        color: #6f7a4a;
         font-size: 12.5cqw;
         line-height: 1.15;
         white-space: nowrap;
@@ -674,12 +656,6 @@ const pase =
             { clipPath: tapado },
             { clipPath: escrito, duration: 1.4, ease: "power1.inOut" },
         )
-            .fromTo(
-                seccion.querySelector(".pedido"),
-                { opacity: 0, y: 12 },
-                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
-                0.7,
-            )
             .fromTo(
                 grupo,
                 { opacity: 0, y: 30 },
