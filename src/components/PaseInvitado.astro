@@ -22,7 +22,6 @@ const pases = invitado ? pasesProp : 1;
 // ── DATOS EDITABLES ───────────────────────────────────────────
 const encabezado = "Con mucho cariño para";
 const reservado = "Hemos reservado";
-const iniciales = ["R", "N"];
 // ──────────────────────────────────────────────────────────────
 ---
 
@@ -33,11 +32,6 @@ const iniciales = ["R", "N"];
     data-conectado={conectado ? "" : undefined}
 >
     <div class="tarjeta">
-        <!-- Medalla verde con las iniciales, pisando el borde de arriba -->
-        <div class="medalla" aria-hidden="true">
-            <span>{iniciales[0]}<em>&</em>{iniciales[1]}</span>
-        </div>
-
         <p class="encabezado">{encabezado}</p>
         <p class="nombre font-great-vibes" id="nombre-invitado">{invitado}</p>
 
@@ -101,9 +95,9 @@ const iniciales = ["R", "N"];
     */
     .tarjeta {
         position: relative;
-        width: 76cqw;
+        width: 80cqw;
         margin: 0 auto;
-        padding: 14cqw 6cqw 9cqw;
+        padding: 10cqw 3.5cqw 9cqw;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -114,39 +108,6 @@ const iniciales = ["R", "N"];
         outline: 1px solid #c09a52;
         outline-offset: -2.4cqw;
         box-shadow: 0 10px 24px rgba(70, 78, 46, 0.16);
-    }
-
-    /* Centrada con márgenes: el transform lo usa la animación */
-    .medalla {
-        position: absolute;
-        top: -8cqw;
-        left: 50%;
-        width: 16cqw;
-        height: 16cqw;
-        margin-left: -8cqw;
-        box-sizing: border-box;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-image: linear-gradient(#6f7a4a, #6f7a4a);
-        border: 0.9cqw solid #fdfaf3;
-        box-shadow:
-            0 0 0 1px #c09a52,
-            0 4px 10px rgba(70, 78, 46, 0.25);
-    }
-
-    .medalla span {
-        font-family: "Cinzel", serif;
-        font-weight: 700;
-        font-size: 4.4cqw;
-        line-height: 1;
-        color: #e2c88c;
-    }
-
-    .medalla em {
-        font-style: normal;
-        font-size: 0.62em;
     }
 
     .encabezado {
@@ -161,7 +122,7 @@ const iniciales = ["R", "N"];
     /* Puede bajar de renglón: un apellido doble no se achica */
     .nombre {
         margin: 2.5cqw 0 0;
-        padding: 0 2cqw;
+        padding: 0;
         font-size: 10cqw;
         line-height: 1.2;
         color: #56603a;
@@ -327,11 +288,6 @@ const iniciales = ["R", "N"];
                 toggleActions: "play none none reset",
             },
         })
-            .fromTo(
-                seccion.querySelector(".medalla"),
-                { scale: 0, rotate: -30 },
-                { scale: 1, rotate: 0, duration: 0.7, ease: "back.out(2)" },
-            )
             .fromTo(
                 seccion.querySelectorAll(".adorno-linea"),
                 { scaleX: 0 },
