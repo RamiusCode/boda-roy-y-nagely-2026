@@ -1,0 +1,415 @@
+---
+// src/components/NombresPadres.astro
+// Tarjeta champán (el mismo color de NombresPadrinos: padres y padrinos
+// se distinguen así de las tarjetas verdes y bordó) con "Con la bendición
+// de Dios y de Nuestros Padres" y los dos grupos (los de la novia y los del novio), cada uno con su
+// rótulo en Cinzel negrita dorada y los nombres en Cinzel bordó, separados
+// por el separador dorado. La flor colgante pisa dos esquinas, y dos
+// rombitos dorados se montan sobre el filete, arriba y abajo.
+//
+// Entrada: la tarjeta sube, el título se escribe como a mano, el adorno
+// se dibuja desde el rombo y los nombres se abren desde el centro. Las
+// flores quedan meciéndose.
+//
+// Cada grupo lleva la lista de nombres que tenga: si un padre no va, se
+// saca de la lista y el grupo se arma igual.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const intro = "Con la bendición de Dios y de";
+const titulo = "Nuestros Padres";
+
+const grupos = [
+    {
+        rotulo: "Padres de la Novia",
+        nombres: ["Alex Ricardo Revollo Alarcón", "Beatriz Patricia Ovando"],
+    },
+    {
+        rotulo: "Padres del Novio",
+        nombres: ["Luis Coca Barrientos", "Juana Melgar Vaca"],
+    },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="nombres-padres" class="seccion">
+    <div id="bloque-padres" class="bloque">
+        <!-- Rombitos sobre el filete dorado, arriba y abajo al centro -->
+        <i class="marco-rombo marco-rombo-arriba" aria-hidden="true"></i>
+        <i class="marco-rombo marco-rombo-abajo" aria-hidden="true"></i>
+
+        <p class="intro">{intro}</p>
+        <p class="titulo font-great-vibes">{titulo}</p>
+
+        <!-- Adorno: dos filetes que salen de un rombo -->
+        <div class="adorno" aria-hidden="true">
+            <i class="adorno-linea adorno-izq"></i>
+            <i class="adorno-rombo"></i>
+            <i class="adorno-linea adorno-der"></i>
+        </div>
+
+        {
+            grupos.map((g, i) => (
+                <>
+                    {i > 0 && (
+                        <img
+                            src="/imagenes/separador.png"
+                            alt=""
+                            width="963"
+                            height="64"
+                            aria-hidden="true"
+                            class="separador"
+                        />
+                    )}
+                    <div class="grupo">
+                        <p class="rotulo">{g.rotulo}</p>
+                        {g.nombres.map((n) => (
+                            <p class="nombre">{n}</p>
+                        ))}
+                    </div>
+                </>
+            ))
+        }
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 10% 0 14%;
+    }
+
+    /* Las letras se miden contra el bloque, no contra la pantalla */
+    .bloque {
+        container-type: inline-size;
+        position: relative;
+        width: 90%;
+        margin: 0 auto;
+        padding: 10cqw 7cqw 11cqw;
+        text-align: center;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.35) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #f1e7d6 0%, #e7d8bf 100%);
+        /* Filete dorado por dentro del borde, además de la sombra */
+        box-shadow:
+            inset 0 0 0 1.5cqw #f1e7d6,
+            inset 0 0 0 calc(1.5cqw + 1px) rgba(176, 138, 62, 0.6),
+            0 10px 24px rgba(90, 60, 30, 0.18);
+    }
+
+    .intro {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.2cqw;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+
+    .titulo {
+        margin: 3cqw 0 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 3cqw;
+        color: #7a2335;
+        font-size: 15cqw;
+        line-height: 1.15;
+    }
+
+    /* ── Rombitos sobre el filete (el filete va a 1,5cqw del borde) ── */
+    .marco-rombo {
+        position: absolute;
+        left: 50%;
+        width: 2.4cqw;
+        height: 2.4cqw;
+        margin-left: -1.2cqw;
+        border: 1px solid rgba(176, 138, 62, 0.8);
+        background-image: linear-gradient(#f1e7d6, #f1e7d6);
+        transform: rotate(45deg);
+    }
+
+    .marco-rombo-arriba {
+        top: 0.3cqw;
+    }
+
+    .marco-rombo-abajo {
+        bottom: 0.3cqw;
+        background-image: linear-gradient(#e7d8bf, #e7d8bf);
+    }
+
+    /* ── Adorno debajo del título ──────────────────────────────── */
+    .adorno {
+        margin: 3cqw auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 18cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 138, 62, 0) 0%,
+            #b08a3e 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08a3e 0%,
+            rgba(176, 138, 62, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.8cqw;
+        height: 1.8cqw;
+        border: 1px solid #b08a3e;
+        transform: rotate(45deg);
+    }
+
+    .grupo {
+        margin-top: 6cqw;
+    }
+
+    /* La misma Cinzel de los nombres, pero en negrita y dorada */
+    .rotulo {
+        margin: 0 0 2.4cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 7cqw;
+        line-height: 1.2;
+        letter-spacing: 0.03em;
+        color: #9a7433;
+    }
+
+    .nombre {
+        margin: 1.4cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.9cqw;
+        line-height: 1.3;
+        letter-spacing: 0.03em;
+        color: #5a2330;
+    }
+
+    .separador {
+        display: block;
+        width: 70cqw;
+        height: auto;
+        margin: 8cqw auto 0;
+        opacity: 0.9;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-padres");
+        if (!bloque) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const flores = bloque.querySelectorAll(".flor");
+        let vaiven: ReturnType<typeof gsap.to> | null = null;
+
+        // Encabezado: la tarjeta sube, el título se escribe y el adorno
+        // se dibuja desde el rombo; las flores bajan y quedan meciéndose
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: bloque,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        })
+            .fromTo(
+                bloque,
+                { opacity: 0, y: 24 },
+                { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+            )
+            .fromTo(
+                bloque.querySelectorAll(".marco-rombo"),
+                { scale: 0, rotate: 0 },
+                {
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    stagger: 0.15,
+                    ease: "back.out(2)",
+                },
+                0.4,
+            )
+            .fromTo(
+                bloque.querySelector(".intro"),
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                0.4,
+            )
+            // Se escribe de izquierda a derecha; los márgenes negativos
+            // dejan pasar los rulos que salen del renglón
+            .fromTo(
+                bloque.querySelector(".titulo"),
+                { clipPath: "inset(-40% 100% -40% 0%)" },
+                {
+                    clipPath: "inset(-40% 0% -40% 0%)",
+                    duration: 1.3,
+                    ease: "power1.inOut",
+                },
+                0.7,
+            )
+            .fromTo(
+                bloque.querySelector(".adorno-rombo"),
+                { opacity: 0, scale: 0, rotate: -45 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    ease: "back.out(2)",
+                },
+                1.6,
+            )
+            .fromTo(
+                bloque.querySelectorAll(".adorno-linea"),
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.75,
+            )
+            .fromTo(
+                flores,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                    // Si la entrada se repite, el vaivén espera su turno
+                    onStart: () => {
+                        vaiven?.pause();
+                    },
+                },
+                0.5,
+            )
+            // El vaivén se crea una sola vez: la entrada se repite
+            .add(() => {
+                if (vaiven) {
+                    vaiven.restart();
+                    return;
+                }
+                vaiven = gsap.to(flores, {
+                    rotate: 3,
+                    duration: 3.2,
+                    stagger: 0.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+            });
+
+        // Cada grupo entra cuando llega a la pantalla: el rótulo sube y
+        // los nombres se abren desde el centro, uno tras otro
+        bloque.querySelectorAll(".grupo").forEach((grupo) => {
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: grupo,
+                    start: "top 88%",
+                    toggleActions: "play none none reset",
+                },
+            })
+                .fromTo(
+                    grupo.querySelector(".rotulo"),
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+                )
+                .fromTo(
+                    grupo.querySelectorAll(".nombre"),
+                    { opacity: 0, clipPath: "inset(0% 50% 0% 50%)" },
+                    {
+                        opacity: 1,
+                        clipPath: "inset(0% 0% 0% 0%)",
+                        duration: 0.9,
+                        stagger: 0.18,
+                        ease: "power2.inOut",
+                    },
+                    0.25,
+                );
+        });
+
+        // El separador se abre desde el centro
+        bloque.querySelectorAll(".separador").forEach((sep) => {
+            gsap.fromTo(
+                sep,
+                { opacity: 0, scaleX: 0.2 },
+                {
+                    opacity: 0.9,
+                    scaleX: 1,
+                    duration: 0.9,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: sep,
+                        start: "top 90%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        });
+    });
+</script>

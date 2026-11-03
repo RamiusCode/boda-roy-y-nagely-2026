@@ -1,0 +1,70 @@
+---
+// src/components/Invitacion.astro
+// El cuerpo completo de la invitación, en un solo lugar.
+import Portada from "./Portada.astro";
+import NombresFlores from "./NombresFlores.astro";
+import Foto1 from "./Foto1.astro";
+import Versiculo from "./Versiculo.astro";
+import NombresPadres from "./NombresPadres.astro";
+import NombresPadrinos from "./NombresPadrinos.astro";
+import RecepcionSocial from "./RecepcionSocial.astro";
+import Cronograma from "./Cronograma.astro";
+import CodigoVestimenta from "./CodigoVestimenta.astro";
+import SugerenciaRegalo from "./SugerenciaRegalo.astro";
+import Restriccion from "./Restriccion.astro";
+import Despedida from "./Despedida.astro";
+import BotonMusica from "./BotonMusica.astro";
+import Contador from "./Contador.astro";
+import Calendario from "./Calendario.astro";
+import Seccion from "./Seccion.astro";
+import Agradecimiento from "./Agradecimiento.astro";
+
+/*
+   Cuántos lugares reserva esta invitación. No se toca acá: lo manda la
+   página. index.astro no le pasa nada y queda en 0, o sea sin pase;
+   pase[cantidad].astro le pasa el número de la URL (/pase1, /pase2...).
+*/
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+---
+
+<!-- PORTADA (cubre todo hasta que se toca el botón de ingreso) -->
+<Portada />
+
+<!-- CONTENIDO DE LA INVITACIÓN -->
+<div id="contenido-principal">
+    <NombresFlores />
+    <Versiculo />
+    <NombresPadres />
+    <NombresPadrinos />
+    <Contador />
+    <Calendario />
+    <Seccion />
+    <RecepcionSocial />
+    <Cronograma />
+    <CodigoVestimenta />
+    <Restriccion />
+    <SugerenciaRegalo />
+    <Foto1 />
+    <Agradecimiento />
+    <Despedida />
+</div>
+
+<!-- El control flotante de la esquina: la nota que pausa y reanuda la melodía -->
+<BotonMusica />
+
+<style>
+    /*
+       Cada sección mide su propio relleno en cqw. Sin un contenedor por
+       encima, ese cqw se calcula contra la pantalla entera: en el celular
+       da igual (la pantalla ES la columna), pero en la computadora el
+       relleno se agrandaba hasta 3 veces y quedaban huecos enormes entre
+       secciones. Con esto el cqw se mide contra la columna de 430px, igual
+       que en el celular.
+    */
+    #contenido-principal {
+        container-type: inline-size;
+    }
+</style>

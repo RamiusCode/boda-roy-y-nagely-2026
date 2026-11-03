@@ -1,0 +1,329 @@
+---
+// src/components/Seccion.astro
+// Frase en Cinzel bordó entre dos adornos dorados (filetes con un rombo)
+// y, debajo, el auto de los recién casados con las flores y las cintas
+// colgando (carro.webp), con una sombra suave en el piso y corazoncitos de
+// línea que suben desde el auto y se desvanecen.
+//
+// Entrada: los adornos se dibujan desde el rombo, la frase aparece palabra
+// por palabra saliendo de un desenfoque (como entre nubes) y el auto se
+// acerca y se asienta.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const frase =
+    "“Y sobre todas estas cosas vestíos de amor, que es el vínculo perfecto.” Colosenses 3:14. Hoy ponemos nuestro amor y nuestro futuro en las manos de Dios, confiando en que Él guiará nuestros pasos y bendecirá nuestro hogar. Con fe en su propósito y amor en nuestros corazones, comenzamos una nueva vida juntos, con la ilusión de construir una unión que perdure por siempre.";
+// ──────────────────────────────────────────────────────────────
+
+// Cada palabra en su span para que entren de a una
+const palabras = frase.split(" ");
+
+// Los corazoncitos: dónde arrancan (en % del ancho del auto), su tamaño
+// y su color. Pocos a propósito: más, y se vuelve recargado.
+const corazones = [
+    { x: 22, tam: 4.2, oro: false },
+    { x: 38, tam: 3.2, oro: true },
+    { x: 55, tam: 4.8, oro: false },
+    { x: 70, tam: 3.4, oro: true },
+    { x: 82, tam: 3.8, oro: false },
+];
+---
+
+<section id="seccion-carro" class="seccion">
+    <!-- Adorno de arriba -->
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <p class="frase" aria-label={frase}>
+        {
+            palabras.map((palabra, i) => (
+                <>
+                    <span class="palabra" aria-hidden="true">
+                        {palabra}
+                    </span>
+                    {i < palabras.length - 1 && " "}
+                </>
+            ))
+        }
+    </p>
+
+    <!-- Adorno de abajo -->
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <div class="escena" aria-hidden="true">
+        <!-- Corazoncitos que suben desde el auto -->
+        {
+            corazones.map((c) => (
+                <svg
+                    class:list={["corazon", { "corazon-oro": c.oro }]}
+                    style={`left: ${c.x}%; width: ${c.tam}cqw; height: ${c.tam}cqw;`}
+                    viewBox="0 0 24 24"
+                >
+                    <path d="M12 21s-7.5-4.7-9.3-9A5.3 5.3 0 0 1 12 6.5 5.3 5.3 0 0 1 21.3 12c-1.8 4.3-9.3 9-9.3 9z" />
+                </svg>
+            ))
+        }
+
+        <img
+            src="/imagenes/carro.webp"
+            alt=""
+            width="713"
+            height="715"
+            class="carro"
+        />
+        <!-- Sombra suave en el piso, para que el auto no flote -->
+        <span class="sombra"></span>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 6cqw 6cqw 10cqw;
+        text-align: center;
+    }
+
+    /* ── Adornos: dos filetes que salen de un rombo ────────────── */
+    .adorno {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 20cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.9cqw;
+        height: 1.9cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    .frase {
+        margin: 5cqw auto;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 5cqw;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    /* inline-block para que cada palabra pueda entrar sola */
+    .palabra {
+        display: inline-block;
+    }
+
+    /* ── El auto ─────────────────────────────────────────────── */
+    .escena {
+        position: relative;
+        width: 62cqw;
+        margin: 10cqw auto 0;
+    }
+
+    .carro {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    .sombra {
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        bottom: -2cqw;
+        height: 5cqw;
+        border-radius: 50%;
+        background-image: radial-gradient(
+            ellipse at center,
+            rgba(90, 30, 40, 0.18) 0%,
+            rgba(90, 30, 40, 0) 70%
+        );
+    }
+
+    /* Arrancan a la altura de las flores del techo, detrás del auto */
+    .corazon {
+        position: absolute;
+        top: 24%;
+        z-index: 0;
+        margin-left: -2cqw;
+        opacity: 0;
+        overflow: visible;
+    }
+
+    .corazon path {
+        fill: none;
+        stroke: #8f2a3d;
+        stroke-width: 1.6;
+        stroke-linejoin: round;
+    }
+
+    .corazon-oro path {
+        stroke: #b8913f;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("seccion-carro");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const rombos = seccion.querySelectorAll(".adorno-rombo");
+        const lineas = seccion.querySelectorAll(".adorno-linea");
+        const palabras = seccion.querySelectorAll(".palabra");
+        const carro = seccion.querySelector(".carro");
+        const sombra = seccion.querySelector(".sombra");
+        const corazones = gsap.utils.toArray<SVGElement>(".corazon", seccion);
+
+        /*
+           Los corazoncitos suben en un vaivén suave y se desvanecen, cada
+           uno a su ritmo. Se crean una sola vez y quedan pausados hasta
+           que el auto llega: la entrada se repite al volver a bajar.
+        */
+        const vuelo = gsap.timeline({ paused: true });
+        corazones.forEach((c, i) => {
+            vuelo.add(
+                gsap
+                    .timeline({ repeat: -1, delay: i * 0.9 })
+                    .fromTo(
+                        c,
+                        { y: 0, x: 0, opacity: 0, scale: 0.6, rotate: -10 },
+                        {
+                            // En px según el ancho: GSAP no lee cqw
+                            y: () => -seccion.clientWidth * 0.15,
+                            x: () => seccion.clientWidth * (i % 2 ? -0.03 : 0.03),
+                            scale: 1,
+                            rotate: 10,
+                            duration: 4.2,
+                            ease: "sine.out",
+                        },
+                    )
+                    .to(
+                        c,
+                        {
+                            keyframes: [
+                                { opacity: 0.85, duration: 1 },
+                                { opacity: 0.85, duration: 1.6 },
+                                { opacity: 0, duration: 1.6 },
+                            ],
+                        },
+                        0,
+                    ),
+                0,
+            );
+        });
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+            onStart: () => {
+                vuelo.pause(0);
+            },
+        });
+
+        tl
+            // Los adornos se dibujan desde el rombo
+            .fromTo(
+                rombos,
+                { opacity: 0, scale: 0, rotate: -45 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    stagger: 0.15,
+                    ease: "back.out(2)",
+                },
+            )
+            .fromTo(
+                lineas,
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                0.15,
+            )
+            // La frase sale de las nubes, palabra por palabra
+            .fromTo(
+                palabras,
+                { opacity: 0, y: 8, filter: "blur(5px)" },
+                {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    duration: 0.8,
+                    stagger: 0.06,
+                    ease: "power2.out",
+                },
+                0.3,
+            )
+            // El auto se acerca y se asienta con un rebote chiquito
+            .fromTo(
+                carro,
+                { opacity: 0, y: 36, scale: 0.9 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 1.3,
+                    ease: "back.out(1.3)",
+                },
+                0.9,
+            )
+            .fromTo(
+                sombra,
+                { opacity: 0, scaleX: 0.5 },
+                { opacity: 1, scaleX: 1, duration: 1.3, ease: "power2.out" },
+                0.9,
+            )
+            .add(() => {
+                vuelo.restart();
+            }, 1.8);
+    });
+</script>

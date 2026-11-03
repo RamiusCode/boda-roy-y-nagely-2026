@@ -1,0 +1,389 @@
+---
+// src/components/Contador.astro
+// "Save the Date" en Great Vibes con el adorno de rombo debajo, la frase en
+// Cinzel, y la cuenta regresiva hasta la boda: días, horas, minutos y
+// segundos, sin cajas, en una banda entre dos filetes dorados y con un
+// filete fino vertical entre unidad y unidad.
+// Los números los llena el script apenas carga y los actualiza cada
+// segundo; el que cambia cae suave desde arriba. La Cinzel no tiene
+// minúsculas: "Días" sale en versalitas.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Save the Date";
+const frase =
+    "El tiempo vuela, la ilusión crece y nuestros corazones laten cada vez más fuerte. Cada día que pasa nos acerca al momento en que sellaremos nuestro amor para toda la vida. ¡La cuenta regresiva para nuestro gran día ha comenzado! 🤍";
+const llamada = "¡Solo faltan!";
+// La boda: 29 de noviembre de 2026 (la hora es la de la ceremonia)
+const fechaBoda = "2026-11-29T16:30:00";
+// ──────────────────────────────────────────────────────────────
+
+const unidades = [
+    { clave: "dias", rotulo: "Días" },
+    { clave: "horas", rotulo: "Horas" },
+    { clave: "min", rotulo: "Min" },
+    { clave: "seg", rotulo: "Seg" },
+];
+---
+
+<section id="contador-boda" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+
+    <!-- Adorno: dos filetes que salen de un rombo -->
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <p class="frase">{frase}</p>
+    <p class="llamada">{llamada}</p>
+
+    <!-- La cuenta, entre dos filetes dorados, con un filete fino entre unidades -->
+    <div class="banda">
+        <i class="banda-linea" aria-hidden="true"></i>
+        <div id="cuenta-contador" class="cuenta" data-fecha={fechaBoda}>
+            {
+                unidades.map((u, i) => (
+                    <>
+                        {i > 0 && <i class="filete" aria-hidden="true" />}
+                        <div class="unidad">
+                            <span class="cifra">
+                                <span class="numero" data-unidad={u.clave}>
+                                    00
+                                </span>
+                            </span>
+                            <span class="rotulo">{u.rotulo}</span>
+                        </div>
+                    </>
+                ))
+            }
+        </div>
+        <i class="banda-linea" aria-hidden="true"></i>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 3cqw 5cqw 12cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 4cqw;
+        display: inline-block;
+        color: #7a2335;
+        font-size: 15cqw;
+        line-height: 1.15;
+    }
+
+    /* ── Adorno debajo del título ──────────────────────────────── */
+    .adorno {
+        margin: 2cqw auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 20cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.9cqw;
+        height: 1.9cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    .frase {
+        margin: 5cqw auto 0;
+        max-width: 92%;
+        font-family: "Cinzel", serif;
+        font-size: 5.2cqw;
+        line-height: 1.45;
+        letter-spacing: 0.02em;
+        color: #6e5a52;
+    }
+
+    /* Como el "Nos casamos" de NombresFlores: Cinzel espaciada y dorada */
+    .llamada {
+        margin: 8cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5cqw;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        /* el espaciado deja aire a la derecha: esto lo compensa */
+        text-indent: 0.26em;
+        color: #8a6a36;
+    }
+
+    /*
+       ── La cuenta ──────────────────────────────────────────────
+       Sobria, como en una invitación impresa: sin cajas, los números en
+       una banda entre dos filetes dorados, con un filete fino vertical
+       entre unidad y unidad.
+    */
+    .banda {
+        margin: 5cqw auto 0;
+        width: 94%;
+    }
+
+    .banda-linea {
+        display: block;
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            rgba(176, 141, 87, 0.85) 20%,
+            rgba(176, 141, 87, 0.85) 80%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 50% 50%;
+    }
+
+    .cuenta {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        padding: 5cqw 0 4.4cqw;
+    }
+
+    .unidad {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Recorta el número que cae al cambiar: entra desde arriba sin asomar */
+    .cifra {
+        display: block;
+        overflow: hidden;
+        padding: 0.6cqw 0;
+    }
+
+    .numero {
+        display: block;
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        /* Entra con tres cifras ("344") */
+        font-size: 11cqw;
+        line-height: 1;
+        color: #7a2335;
+        /* Todos los dígitos del mismo ancho: así la cuenta no baila */
+        font-variant-numeric: tabular-nums;
+    }
+
+    .rotulo {
+        margin-top: 2.4cqw;
+        font-family: "Cinzel", serif;
+        font-size: 3.3cqw;
+        line-height: 1;
+        letter-spacing: 0.2em;
+        /* el espaciado deja aire a la derecha: esto lo compensa */
+        text-indent: 0.2em;
+        text-transform: uppercase;
+        color: #8a6a36;
+    }
+
+    /* El filete entre unidades: se desvanece arriba y abajo */
+    .filete {
+        display: block;
+        flex: 0 0 1px;
+        background-image: linear-gradient(
+            180deg,
+            rgba(176, 141, 87, 0) 0%,
+            rgba(176, 141, 87, 0.75) 50%,
+            rgba(176, 141, 87, 0) 100%
+        );
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("contador-boda");
+        const cuenta = document.getElementById("cuenta-contador");
+        if (!seccion || !cuenta) return;
+
+        const menosMovimiento = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        // ── Cuenta regresiva ───────────────────────────────────
+        const destino = new Date(cuenta.dataset.fecha ?? "").getTime();
+        const campos: Record<string, HTMLElement | null> = {};
+        for (const clave of ["dias", "horas", "min", "seg"]) {
+            campos[clave] = cuenta.querySelector(`[data-unidad="${clave}"]`);
+        }
+        const dos = (n: number) => String(n).padStart(2, "0");
+
+        const actualizar = () => {
+            const resta = Math.max(0, destino - Date.now());
+            const s = Math.floor(resta / 1000);
+            const valores: Record<string, number> = {
+                dias: Math.floor(s / 86400),
+                horas: Math.floor((s % 86400) / 3600),
+                min: Math.floor((s % 3600) / 60),
+                seg: s % 60,
+            };
+            for (const clave in valores) {
+                const el = campos[clave];
+                const texto = dos(valores[clave]);
+                if (!el || el.textContent === texto) continue;
+                el.textContent = texto;
+                // El número que cambia cae suave desde arriba
+                if (!menosMovimiento)
+                    gsap.fromTo(
+                        el,
+                        { yPercent: -45, opacity: 0 },
+                        {
+                            yPercent: 0,
+                            opacity: 1,
+                            duration: 0.45,
+                            ease: "power2.out",
+                        },
+                    );
+            }
+            return resta > 0;
+        };
+
+        if (!isNaN(destino) && actualizar()) {
+            const reloj = setInterval(() => {
+                if (!actualizar()) clearInterval(reloj);
+            }, 1000);
+        }
+
+        // ── Entrada ────────────────────────────────────────────
+        if (menosMovimiento) return;
+
+        const titulo = seccion.querySelector(".titulo");
+        const lineas = seccion.querySelectorAll(".adorno-linea");
+        const rombo = seccion.querySelector(".adorno-rombo");
+        const frase = seccion.querySelector(".frase");
+        const llamada = seccion.querySelector(".llamada");
+        const unidades = cuenta.querySelectorAll(".unidad");
+        const bandas = seccion.querySelectorAll(".banda-linea");
+        const filetes = cuenta.querySelectorAll(".filete");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl
+            // "Save the Date" se escribe; los márgenes negativos dejan
+            // pasar los rulos que salen del renglón
+            .fromTo(
+                titulo,
+                { clipPath: "inset(-40% 100% -40% 0%)" },
+                {
+                    clipPath: "inset(-40% 0% -40% 0%)",
+                    duration: 1.4,
+                    ease: "power1.inOut",
+                },
+            )
+            .fromTo(
+                rombo,
+                { opacity: 0, scale: 0, rotate: -45 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    ease: "back.out(2)",
+                },
+                0.9,
+            )
+            .fromTo(
+                lineas,
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.05,
+            )
+            .fromTo(
+                frase,
+                { opacity: 0, y: 14 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                1.1,
+            )
+            .fromTo(
+                llamada,
+                { opacity: 0, letterSpacing: "0.5em" },
+                {
+                    opacity: 1,
+                    letterSpacing: "0.26em",
+                    duration: 1.1,
+                    ease: "power2.out",
+                },
+                1.4,
+            )
+            // Los filetes de la banda se abren desde el centro, después los
+            // verticales crecen y las unidades suben, una tras otra
+            .fromTo(
+                bandas,
+                { scaleX: 0 },
+                { scaleX: 1, duration: 1.1, ease: "power2.inOut" },
+                1.5,
+            )
+            .fromTo(
+                filetes,
+                { scaleY: 0 },
+                {
+                    scaleY: 1,
+                    duration: 0.7,
+                    stagger: 0.1,
+                    ease: "power2.out",
+                },
+                2.1,
+            )
+            .fromTo(
+                unidades,
+                { opacity: 0, y: 14 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.12,
+                    ease: "power2.out",
+                },
+                1.9,
+            );
+    });
+</script>

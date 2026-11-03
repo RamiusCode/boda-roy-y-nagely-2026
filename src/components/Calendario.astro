@@ -1,0 +1,453 @@
+---
+// src/components/Calendario.astro
+// Tarjeta verde con un filete dorado por dentro (con un rombito arriba y
+// otro abajo), el nombre del mes en Great Vibes y el año debajo, la grilla
+// del mes (la semana arranca el lunes) y el día de la boda rodeado por un
+// corazón dorado. La misma flor colgante (florabajo.png) pisa dos esquinas:
+// arriba a la izquierda y abajo a la derecha.
+//
+// Entrada: la tarjeta sube, el mes se escribe como a mano, los días
+// aparecen en ola, el corazón se dibuja con un trazo y después late.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// La boda: 29 de noviembre de 2026 (mes 10 porque enero es 0)
+const anioBoda = 2026;
+const mesBoda = 10;
+const diaBoda = 29;
+const nombreMes = "Noviembre";
+// ──────────────────────────────────────────────────────────────
+
+const cabeceras = ["L", "M", "M", "J", "V", "S", "D"];
+
+/*
+   La grilla se arma sola con la fecha: así el mes siempre cae en el día
+   de la semana correcto. getDay() cuenta desde el domingo; el +6 % 7 lo
+   corre para que la semana empiece el lunes.
+*/
+const primerDia = (new Date(anioBoda, mesBoda, 1).getDay() + 6) % 7;
+const diasDelMes = new Date(anioBoda, mesBoda + 1, 0).getDate();
+
+const celdas: (number | null)[] = [
+    ...Array(primerDia).fill(null),
+    ...Array.from({ length: diasDelMes }, (_, i) => i + 1),
+];
+while (celdas.length % 7 !== 0) celdas.push(null);
+---
+
+<section id="calendario" class="seccion">
+    <div id="tarjeta-calendario" class="tarjeta">
+        <!-- Filete dorado interior, con un rombito arriba y otro abajo -->
+        <span class="marco" aria-hidden="true">
+            <i class="marco-rombo marco-rombo-arriba"></i>
+            <i class="marco-rombo marco-rombo-abajo"></i>
+        </span>
+
+        <p class="mes font-great-vibes">{nombreMes}</p>
+        <p class="anio">{anioBoda}</p>
+
+        <div class="grilla cabecera">
+            {cabeceras.map((c) => <span>{c}</span>)}
+        </div>
+        <span class="linea" aria-hidden="true"></span>
+
+        <div class="grilla dias">
+            {
+                celdas.map((d) =>
+                    d === diaBoda ? (
+                        <span class="dia dia-boda">
+                            <span class="latido" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <defs>
+                                        <linearGradient
+                                            id="oro-corazon"
+                                            x1="0"
+                                            y1="0"
+                                            x2="1"
+                                            y2="1"
+                                        >
+                                            <stop offset="0%" stop-color="#f3dc9a" />
+                                            <stop offset="55%" stop-color="#d1ab5c" />
+                                            <stop offset="100%" stop-color="#a47b30" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path
+                                        class="corazon"
+                                        d="M12 21s-7.5-4.7-9.3-9A5.3 5.3 0 0 1 12 6.5 5.3 5.3 0 0 1 21.3 12c-1.8 4.3-9.3 9-9.3 9z"
+                                    />
+                                </svg>
+                            </span>
+                            <b>{d}</b>
+                        </span>
+                    ) : (
+                        <span class="dia">{d ?? ""}</span>
+                    ),
+                )
+            }
+        </div>
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 12% 0 16%;
+    }
+
+    /* Las letras se miden contra la tarjeta, no contra la pantalla */
+    .tarjeta {
+        container-type: inline-size;
+        position: relative;
+        width: 92%;
+        margin: 0 auto;
+        padding: 9cqw 7cqw 10cqw;
+        text-align: center;
+        color: #f4efe3;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 18%,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    /* ── Filete dorado interior ────────────────────────────────── */
+    .marco {
+        position: absolute;
+        inset: 3cqw;
+        border: 1px solid rgba(216, 190, 130, 0.6);
+        pointer-events: none;
+    }
+
+    .marco-rombo {
+        position: absolute;
+        left: 50%;
+        width: 2.4cqw;
+        height: 2.4cqw;
+        margin-left: -1.2cqw;
+        border: 1px solid rgba(216, 190, 130, 0.9);
+        background-image: linear-gradient(#4a5939, #4a5939);
+        transform: rotate(45deg);
+    }
+
+    .marco-rombo-arriba {
+        top: -1.2cqw;
+    }
+
+    .marco-rombo-abajo {
+        bottom: -1.2cqw;
+    }
+
+    .mes {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 4cqw;
+        display: inline-block;
+        font-size: 13cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .anio {
+        margin: 0.6cqw 0 5cqw;
+        font-family: "Cinzel", serif;
+        font-size: 4.2cqw;
+        line-height: 1;
+        letter-spacing: 0.4em;
+        /* el espaciado deja aire a la derecha: esto lo compensa */
+        text-indent: 0.4em;
+        color: #d8be82;
+    }
+
+    .grilla {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        align-items: center;
+        font-family: "Cinzel", serif;
+        color: #f1ebdc;
+    }
+
+    /* Las iniciales de los días, doradas */
+    .cabecera {
+        font-size: 4.6cqw;
+        padding-bottom: 2.4cqw;
+        color: #d8be82;
+    }
+
+    .linea {
+        display: block;
+        height: 1px;
+        margin: 0 1cqw 3.6cqw;
+        background-image: linear-gradient(
+            90deg,
+            rgba(216, 190, 130, 0) 0%,
+            rgba(216, 190, 130, 0.85) 50%,
+            rgba(216, 190, 130, 0) 100%
+        );
+        transform-origin: 50% 50%;
+    }
+
+    .dias {
+        row-gap: 3.2cqw;
+        font-size: 4.4cqw;
+    }
+
+    .dia {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 8cqw;
+    }
+
+    /* El día de la boda, adentro de un corazón dorado */
+    .latido {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 13.5cqw;
+        height: 13.5cqw;
+        margin: -6.9cqw 0 0 -6.75cqw;
+    }
+
+    .latido svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        filter: drop-shadow(0 0 3px rgba(243, 220, 154, 0.35));
+    }
+
+    .corazon {
+        fill: rgba(216, 190, 130, 0.14);
+        stroke: url(#oro-corazon);
+        stroke-width: 1.4;
+        stroke-linejoin: round;
+    }
+
+    .dia-boda b {
+        position: relative;
+        font-weight: 700;
+        font-size: 4.9cqw;
+        color: #fff8e8;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-calendario");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const marco = tarjeta.querySelector(".marco");
+        const rombos = tarjeta.querySelectorAll(".marco-rombo");
+        const mes = tarjeta.querySelector(".mes");
+        const anio = tarjeta.querySelector(".anio");
+        const cabecera = tarjeta.querySelectorAll(".cabecera span");
+        const linea = tarjeta.querySelector(".linea");
+        const dias = tarjeta.querySelectorAll(".dias .dia");
+        const corazon = tarjeta.querySelector<SVGPathElement>(".corazon");
+        const latido = tarjeta.querySelector(".latido");
+        const flores = tarjeta.querySelectorAll(".flor");
+
+        // El largo del trazo del corazón: con eso se "dibuja"
+        const largo = corazon?.getTotalLength() ?? 60;
+        let vaiven: ReturnType<typeof gsap.to> | null = null;
+        let pulso: ReturnType<typeof gsap.to> | null = null;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+            // Si la entrada se repite, el latido y el vaivén esperan su turno
+            onStart: () => {
+                pulso?.pause(0);
+                vaiven?.pause();
+            },
+        });
+
+        tl.fromTo(
+            tarjeta,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            .fromTo(
+                marco,
+                { opacity: 0, scale: 1.05 },
+                { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out" },
+                0.3,
+            )
+            .fromTo(
+                rombos,
+                { scale: 0, rotate: 0 },
+                {
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    stagger: 0.15,
+                    ease: "back.out(2)",
+                },
+                0.6,
+            )
+            // El mes se escribe; los márgenes negativos dejan pasar los rulos
+            .fromTo(
+                mes,
+                { clipPath: "inset(-40% 100% -40% 0%)" },
+                {
+                    clipPath: "inset(-40% 0% -40% 0%)",
+                    duration: 1.2,
+                    ease: "power1.inOut",
+                },
+                0.45,
+            )
+            .fromTo(
+                anio,
+                { opacity: 0, letterSpacing: "0.8em" },
+                {
+                    opacity: 1,
+                    letterSpacing: "0.4em",
+                    duration: 1,
+                    ease: "power2.out",
+                },
+                1.1,
+            )
+            .fromTo(
+                cabecera,
+                { opacity: 0, y: -8 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.5,
+                    stagger: 0.05,
+                    ease: "power2.out",
+                },
+                1.2,
+            )
+            .fromTo(
+                linea,
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.35,
+            )
+            // Los días, en ola desde la esquina de arriba a la izquierda
+            .fromTo(
+                dias,
+                { opacity: 0, y: 8 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    stagger: { each: 0.035, grid: "auto", from: "start" },
+                },
+                1.45,
+            )
+            // El corazón se dibuja con el trazo dorado y se rellena apenas
+            .fromTo(
+                corazon,
+                {
+                    strokeDasharray: largo,
+                    strokeDashoffset: largo,
+                    fillOpacity: 0,
+                },
+                {
+                    strokeDashoffset: 0,
+                    duration: 1.3,
+                    ease: "power2.inOut",
+                },
+                ">-0.4",
+            )
+            .to(corazon, { fillOpacity: 1, duration: 0.6 }, ">-0.3")
+            .fromTo(
+                flores,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.5,
+            )
+            // Después: el corazón late y las flores se mecen. Se crean una
+            // sola vez, porque la entrada se repite al volver a bajar.
+            .add(() => {
+                if (pulso && vaiven) {
+                    pulso.restart();
+                    vaiven.restart();
+                    return;
+                }
+                pulso = gsap.to(latido, {
+                    keyframes: [
+                        { scale: 1.12, duration: 0.18, ease: "power2.out" },
+                        { scale: 1, duration: 0.22, ease: "power2.in" },
+                        { scale: 1.08, duration: 0.16, ease: "power2.out" },
+                        { scale: 1, duration: 0.3, ease: "power2.in" },
+                    ],
+                    repeat: -1,
+                    repeatDelay: 1.4,
+                });
+                vaiven = gsap.to(flores, {
+                    rotate: 3,
+                    duration: 3.2,
+                    stagger: 0.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+            });
+    });
+</script>

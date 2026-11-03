@@ -1,0 +1,721 @@
+---
+// src/components/RecepcionSocial.astro
+// Collage de los dos lugares: el óvalo verde con la ceremonia religiosa
+// (la iglesia, su dirección y su mapa), la tarjeta bordó con el salón y
+// su mapa a la derecha, y abajo
+// la foto tipo polaroid con el sello de lacre. Las flores pisan los
+// bordes y el monograma cierra abajo a la derecha.
+//
+// Todas las piezas van ubicadas en cqw (1cqw = 1% del ancho de la
+// sección), así el collage se ve igual en cualquier celular.
+//
+// Entrada, sutil y en orden: el óvalo se abre desde el centro y su título
+// se escribe, la tarjeta bordó se despliega hacia abajo, la polaroid cae
+// apenas torcida y su foto se "revela" (de sepia y borrosa a nítida), el
+// sello se estampa y las flores asoman. Después se mecen, y el botón del
+// mapa tiene un brillo que lo cruza cada tanto.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Óvalo verde: la ceremonia religiosa, en la iglesia
+const ceremonia = {
+    titulo: ["Ceremonia", "Religiosa"],
+    lugar: "Parroquia La Resurrección",
+    lineas: ["Calle 7 Oeste entre Cristóbal Velarde"],
+    mapa: "https://maps.app.goo.gl/jg2uGLFFS7EkVrSv9",
+};
+// La tarjeta bordó crece hacia abajo con el texto: se le pueden sumar
+// renglones sin que se corte.
+const ubicacion = {
+    titulo: "Ubicación",
+    lugar: "Ciudad Jardín",
+    lineas: ["Salón de Eventos", "Av. Moscú c/ Rosario"],
+    // La de la recepción social en el salón. Vacío, el renglón no se dibuja
+    hora: "Hora: 6:30 P.M.",
+    mapa: "https://maps.app.goo.gl/1f9F8Y29PdQdGAm66",
+};
+const textoBoton = "Ver mapa";
+const foto = "/imagenes/foto7.jpg";
+// Las iniciales del monograma salen de acá
+const novios = "Roy & Nagely";
+// ──────────────────────────────────────────────────────────────
+
+// El marco del monograma viene sin letras: se escriben encima con las
+// iniciales de `novios`, así sirve para cualquier pareja.
+const iniciales = novios.split("&").map((nombre) => nombre.trim().charAt(0));
+---
+
+<section id="recepcion-social" class="seccion">
+    <div class="collage">
+        <!-- Óvalo verde: la ceremonia religiosa -->
+        <div class="ovalo pieza">
+            <p class="titulo font-great-vibes">
+                <span>{ceremonia.titulo[0]}</span>
+                <span>{ceremonia.titulo[1]}</span>
+            </p>
+            <img
+                src="/imagenes/ceremonia.png"
+                alt=""
+                width="733"
+                height="630"
+                aria-hidden="true"
+                class="dibujo dibujo-ceremonia"
+            />
+            <p class="o-lugar">{ceremonia.lugar}</p>
+            <p class="o-dato">
+                {ceremonia.lineas.map((l) => <span>{l}</span>)}
+            </p>
+            <a
+                href={ceremonia.mapa}
+                target="_blank"
+                rel="noopener"
+                class="boton boton-verde"
+                ><span class="boton-texto">{textoBoton}</span><span
+                    class="boton-brillo"
+                    aria-hidden="true"></span></a
+            >
+        </div>
+
+        <!-- Tarjeta bordó: dónde es todo -->
+        <div class="tarjeta pieza">
+            <p class="titulo font-great-vibes">{ubicacion.titulo}</p>
+            <img
+                src="/imagenes/recepcion.png"
+                alt=""
+                width="588"
+                height="681"
+                aria-hidden="true"
+                class="dibujo dibujo-recepcion"
+            />
+            <p class="lugar">{ubicacion.lugar}</p>
+            <p class="dato">
+                {ubicacion.lineas.map((l) => <span>{l}</span>)}
+            </p>
+            {ubicacion.hora && <span class="filete" aria-hidden="true"></span>}
+            {ubicacion.hora && <p class="dato hora">{ubicacion.hora}</p>}
+            <a
+                href={ubicacion.mapa}
+                target={ubicacion.mapa === "#" ? undefined : "_blank"}
+                rel="noopener"
+                class="boton boton-bordo"
+                ><span class="boton-texto">{textoBoton}</span><span
+                    class="boton-brillo"
+                    aria-hidden="true"></span></a
+            >
+
+            <!-- La flor y el monograma van adentro de la tarjeta: la
+                 siguen aunque crezca con el texto -->
+            <img
+                src="/imagenes/florabajo.png"
+                alt=""
+                width="538"
+                height="1204"
+                aria-hidden="true"
+                class="adorno flor-esquina"
+            />
+            <div class="adorno logo" aria-hidden="true">
+                <img
+                    src="/imagenes/logo-marco.webp"
+                    alt=""
+                    width="600"
+                    height="433"
+                    class="logo-marco"
+                />
+                <p class="logo-letras">
+                    {iniciales[0]}{iniciales[1]}
+                </p>
+            </div>
+        </div>
+
+        <!-- Polaroid con la foto -->
+        <div class="polaroid pieza">
+            <img src={foto} alt="Los novios" class="polaroid-foto" />
+        </div>
+
+        <!-- Adornos -->
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="adorno sello"
+        />
+        <img
+            src="/imagenes/flor3.png"
+            alt=""
+            width="840"
+            height="1022"
+            aria-hidden="true"
+            class="adorno flor-anturio"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="adorno flor-medio"
+        />
+        <img
+            src="/imagenes/florblanco.png"
+            alt=""
+            width="577"
+            height="1446"
+            aria-hidden="true"
+            class="adorno flor-blanca"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 8% 0 10%;
+    }
+
+    /* El collage entero se mide contra su propio ancho */
+    .collage {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        /* Alcanza para la tarjeta bordó con 3 renglones de dirección y el
+           monograma debajo; si se le suman más, subir este número */
+        height: 142cqw;
+    }
+
+    .pieza,
+    .adorno {
+        position: absolute;
+    }
+
+    .adorno {
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ── Óvalo verde (ceremonia) ────────────────────────────── */
+    .ovalo {
+        z-index: 1;
+        left: 6.5cqw;
+        top: 1cqw;
+        width: 50cqw;
+        height: 76cqw;
+        border-radius: 50%;
+        padding: 8cqw 3cqw 0;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 25%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    /* ── Tarjeta bordó (recepción) ──────────────────────────── */
+    .tarjeta {
+        z-index: 2;
+        left: 50cqw;
+        top: 39cqw;
+        width: 45cqw;
+        /* Crece con el texto: nunca se corta la dirección */
+        min-height: 66cqw;
+        /* Aire a los costados: el texto no toca los bordes */
+        padding: 7cqw 5cqw 6cqw;
+        box-sizing: border-box;
+        background-image:
+            radial-gradient(
+                ellipse at 50% 25%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
+        box-shadow: 0 10px 24px rgba(70, 20, 30, 0.25);
+    }
+
+    .ovalo,
+    .tarjeta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #f7f2e6;
+    }
+
+    .titulo {
+        margin: 0;
+        font-size: 8cqw;
+        line-height: 1.1;
+    }
+
+    .titulo span {
+        display: block;
+    }
+
+    .dibujo {
+        display: block;
+        height: auto;
+        margin: 2cqw 0 2.4cqw;
+    }
+
+    /*
+       El óvalo es más apretado: todo tiene que terminar antes del sello,
+       que se para sobre su borde de abajo.
+    */
+    .ovalo {
+        padding-top: 7cqw;
+    }
+
+    .ovalo .titulo {
+        font-size: 7.6cqw;
+    }
+
+    .dibujo-ceremonia {
+        width: 12cqw;
+        margin: 1.4cqw 0;
+    }
+
+    /* La iglesia: el nombre destacado y la dirección, más chicos que en
+       la tarjeta bordó porque el óvalo se angosta hacia abajo */
+    .o-lugar {
+        margin: 0 0 1cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 3.3cqw;
+        line-height: 1.25;
+        letter-spacing: 0.04em;
+        color: #f3e3bd;
+        text-wrap: balance;
+    }
+
+    .o-dato {
+        margin: 0;
+        padding: 0 2cqw;
+        font-family: "Cinzel", serif;
+        font-size: 2.9cqw;
+        line-height: 1.3;
+    }
+
+    .o-dato span {
+        display: block;
+        text-wrap: balance;
+    }
+
+    /* El nombre del lugar, destacado */
+    .lugar {
+        margin: 0 0 1.4cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 4cqw;
+        letter-spacing: 0.06em;
+        color: #f3e3bd;
+    }
+
+    .filete {
+        display: block;
+        width: 14cqw;
+        height: 1px;
+        margin: 2.4cqw auto;
+        background-image: linear-gradient(
+            90deg,
+            rgba(214, 182, 120, 0),
+            #d6b678,
+            rgba(214, 182, 120, 0)
+        );
+    }
+
+    .hora {
+        letter-spacing: 0.06em;
+    }
+
+    .dibujo-recepcion {
+        width: 15cqw;
+        margin-top: 2.4cqw;
+    }
+
+    .dato {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.4cqw;
+        line-height: 1.3;
+        letter-spacing: 0.01em;
+    }
+
+    .dato span + span {
+        margin-top: 0.8cqw;
+    }
+
+    .dato span {
+        display: block;
+        /* Renglones parejos cuando la dirección baja de línea */
+        text-wrap: balance;
+    }
+
+    .boton {
+        display: inline-block;
+        margin-top: 3cqw;
+        padding: 1.2cqw 4.6cqw;
+        border-radius: 999px;
+        font-family: "Cinzel", serif;
+        font-size: 3.3cqw;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        background-image: linear-gradient(#f6f1e8, #f6f1e8);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
+
+    .boton-bordo {
+        color: #7a2335;
+    }
+
+    .boton-verde {
+        margin-top: 2.4cqw;
+        color: #46553a;
+    }
+
+    /* El brillo que cruza el botón cada tanto, recortado a su forma */
+    .boton {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .boton-texto {
+        position: relative;
+        z-index: 1;
+    }
+
+    .boton-brillo {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 45%;
+        background-image: linear-gradient(
+            105deg,
+            rgba(214, 182, 120, 0) 0%,
+            rgba(214, 182, 120, 0.45) 50%,
+            rgba(214, 182, 120, 0) 100%
+        );
+        transform: translateX(-120%);
+    }
+
+    /* ── Polaroid ───────────────────────────────────────────── */
+    .polaroid {
+        z-index: 3;
+        left: 6cqw;
+        top: 75cqw;
+        width: 48cqw;
+        height: 56cqw;
+        padding: 2.6cqw 2.6cqw 13cqw;
+        /* Apenas torcida, como apoyada a mano (la entrada termina igual) */
+        transform: rotate(-2deg);
+        background-image: linear-gradient(#fbf9f5, #fbf9f5);
+        box-shadow: 0 8px 20px rgba(40, 30, 20, 0.22);
+    }
+
+    .polaroid-foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 35%;
+    }
+
+    /* ── Adornos ────────────────────────────────────────────── */
+    .sello {
+        z-index: 5;
+        left: 23.5cqw;
+        top: 68.5cqw;
+        width: 15cqw;
+        filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
+    }
+
+    .flor-anturio {
+        z-index: 1;
+        left: 67cqw;
+        /* Baja hasta meterse detrás de la tarjeta bordó (z-index menor) */
+        top: 13cqw;
+        width: 25cqw;
+    }
+
+    .flor-medio {
+        z-index: 4;
+        left: 47cqw;
+        top: 20cqw;
+        width: 15cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .flor-blanca {
+        z-index: 4;
+        left: 3cqw;
+        top: 72cqw;
+        width: 12cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.15));
+    }
+
+    /* Estas dos se ubican contra la tarjeta bordó, no contra el collage */
+    .flor-esquina {
+        z-index: 4;
+        right: -3cqw;
+        bottom: -8cqw;
+        width: 11cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .logo {
+        z-index: 1;
+        left: 12cqw;
+        top: calc(100% + 4cqw);
+        width: 19cqw;
+    }
+
+    .logo-marco {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* Las iniciales, centradas en el hueco del marco */
+    .logo-letras {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 0.4cqw;
+        /* La misma letra de los sobres: Cinzel en negrita */
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 4.8cqw;
+        line-height: 1;
+        color: #6f1520;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("recepcion-social");
+        if (!seccion) return;
+
+        // El botón con "#" (modelo de muestra) no hace nada: sin esto, el
+        // "#" sube la página hasta arriba
+        seccion
+            .querySelectorAll<HTMLAnchorElement>('a[href="#"]')
+            .forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const q = (s: string) => seccion.querySelector(s);
+        const qq = (s: string) => seccion.querySelectorAll(s);
+
+        const ovalo = q(".ovalo");
+        const tarjeta = q(".tarjeta");
+        const polaroid = q(".polaroid");
+        const fotoPolaroid = q(".polaroid-foto");
+        const sello = q(".sello");
+        const brillo = qq(".boton-brillo");
+        const flores = qq(".flor-anturio, .flor-medio, .flor-blanca, .flor-esquina");
+
+        // Los tweens que siguen andando después de la entrada: se crean
+        // una sola vez y se pausan si la entrada se repite
+        let vaiven: ReturnType<typeof gsap.to> | null = null;
+        let destello: ReturnType<typeof gsap.to> | null = null;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 78%",
+                toggleActions: "play none none reset",
+            },
+            onStart: () => {
+                vaiven?.pause();
+                destello?.pause(0);
+            },
+        });
+
+        tl
+            // 1 · El óvalo se abre desde el centro
+            .fromTo(
+                ovalo,
+                { opacity: 0, clipPath: "ellipse(8% 8% at 50% 50%)" },
+                {
+                    opacity: 1,
+                    clipPath: "ellipse(50% 50% at 50% 50%)",
+                    duration: 1.2,
+                    ease: "power3.inOut",
+                },
+            )
+            // "Ceremonia / Religiosa" se escriben, renglón por renglón; los
+            // márgenes negativos dejan pasar los rulos
+            .fromTo(
+                ovalo?.querySelectorAll(".titulo span") ?? [],
+                { clipPath: "inset(-30% 100% -30% -6%)" },
+                {
+                    clipPath: "inset(-30% -6% -30% -6%)",
+                    duration: 0.9,
+                    stagger: 0.55,
+                    ease: "power1.inOut",
+                },
+                0.7,
+            )
+            .fromTo(
+                ovalo?.querySelector(".dibujo-ceremonia") ?? [],
+                { opacity: 0, scale: 0.85 },
+                { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" },
+                1.3,
+            )
+            .fromTo(
+                ovalo?.querySelectorAll(".o-lugar, .o-dato, .boton") ?? [],
+                { opacity: 0, y: 8 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                1.5,
+            )
+
+            // 2 · La tarjeta bordó se despliega de arriba hacia abajo
+            .fromTo(
+                tarjeta,
+                { opacity: 0, clipPath: "inset(0% 0% 100% 0%)" },
+                {
+                    opacity: 1,
+                    clipPath: "inset(0% 0% 0% 0%)",
+                    duration: 1.1,
+                    ease: "power2.inOut",
+                    // Suelto el recorte al terminar: la flor de la esquina
+                    // y el monograma sobresalen de la tarjeta
+                    onComplete: () => {
+                        gsap.set(tarjeta, { clearProps: "clipPath" });
+                    },
+                },
+                0.5,
+            )
+            .fromTo(
+                tarjeta?.querySelectorAll(
+                    ".titulo, .dibujo-recepcion, .lugar, .dato, .filete, .boton",
+                ) ?? [],
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    stagger: 0.1,
+                    ease: "power2.out",
+                },
+                1.1,
+            )
+
+            // 3 · La polaroid cae y queda apenas torcida, como apoyada a mano
+            .fromTo(
+                polaroid,
+                { opacity: 0, y: -24, rotate: -9 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotate: -2,
+                    duration: 1.2,
+                    ease: "power3.out",
+                },
+                0.9,
+            )
+            // y la foto se revela: de sepia, clara y borrosa a nítida
+            .fromTo(
+                fotoPolaroid,
+                {
+                    filter: "sepia(0.85) brightness(1.45) contrast(0.7) blur(3px)",
+                },
+                {
+                    filter: "sepia(0) brightness(1) contrast(1) blur(0px)",
+                    duration: 2.4,
+                    ease: "power1.inOut",
+                },
+                1.4,
+            )
+            // 4 · El sello se estampa y la polaroid acusa el golpe
+            .fromTo(
+                sello,
+                { opacity: 0, scale: 1.7, rotate: -12 },
+                {
+                    keyframes: [
+                        { opacity: 1, scale: 0.9, rotate: 0, duration: 0.35, ease: "power3.in" },
+                        { scale: 1, duration: 0.3, ease: "back.out(3)" },
+                    ],
+                },
+                2.1,
+            )
+            .to(
+                polaroid,
+                {
+                    keyframes: [
+                        { y: 3, duration: 0.08, ease: "power2.out" },
+                        { y: 0, duration: 0.35, ease: "back.out(3)" },
+                    ],
+                },
+                2.45,
+            )
+
+            // 5 · Las flores asoman desde su tallo y el monograma aparece
+            .fromTo(
+                flores,
+                { opacity: 0, scale: 0.85, rotate: -6, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                1.2,
+            )
+            .fromTo(
+                q(".logo"),
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                2.2,
+            )
+
+            // Después: las flores se mecen y el botón brilla cada tanto
+            .add(() => {
+                if (vaiven && destello) {
+                    vaiven.restart();
+                    destello.restart();
+                    return;
+                }
+                vaiven = gsap.to(flores, {
+                    rotate: 2.5,
+                    duration: 3.4,
+                    stagger: 0.5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+                destello = gsap.fromTo(
+                    brillo,
+                    { xPercent: -120 },
+                    {
+                        xPercent: 260,
+                        duration: 1.1,
+                        ease: "power2.inOut",
+                        repeat: -1,
+                        repeatDelay: 3.5,
+                    },
+                );
+            });
+    });
+</script>

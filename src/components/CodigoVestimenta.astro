@@ -1,0 +1,366 @@
+---
+// src/components/CodigoVestimenta.astro
+// "Dress Code" en Great Vibes bordó con el adorno de rombo debajo, la
+// etiqueta y la indicación en Cinzel, la pareja vestida de gala
+// (codigo.png), el separador dorado, los colores sugeridos en círculos
+// con un anillo dorado, y el aviso para las damas.
+//
+// Entrada: el título se escribe como a mano, la pareja sube con un
+// fundido, el separador se abre desde el centro y los colores caen como
+// gotas, uno tras otro; después quedan flotando apenas.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Dress Code";
+const etiqueta = "Etiqueta Formal";
+const indicacion = "Vestido largo para las damas y traje para los caballeros";
+const tituloColores = "Paleta de Colores";
+const textoColores = "Pueden usar cualquier paleta de color";
+// Un círculo por color, en el mismo orden que el texto de arriba
+// Sin colores sugeridos: el cliente deja libre la paleta
+const colores: { nombre: string; hex: string }[] = [];
+const avisoDamas =
+    "Para las damas les pedimos amablemente evitar el uso de prendas color blanco, marfil y sus gamas";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="codigo-vestimenta" class="seccion">
+    <p class="titulo titulo-principal font-great-vibes">{titulo}</p>
+
+    <!-- Adorno: dos filetes que salen de un rombo -->
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <p class="etiqueta">{etiqueta}</p>
+    <p class="indicacion">{indicacion}</p>
+
+    <img
+        src="/imagenes/codigo.png"
+        alt="Pareja vestida de gala: ella con vestido largo, él de traje"
+        width="579"
+        height="991"
+        class="pareja"
+    />
+
+    <img
+        src="/imagenes/separador.png"
+        alt=""
+        width="963"
+        height="64"
+        aria-hidden="true"
+        class="separador"
+    />
+
+    <p class="titulo titulo-colores font-great-vibes">{tituloColores}</p>
+    <p class="texto-colores">{textoColores}</p>
+
+    <div class="paleta">
+        {
+            colores.map((c) => (
+                <span
+                    class="color"
+                    style={`background-image: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%), linear-gradient(${c.hex}, ${c.hex});`}
+                    title={c.nombre}
+                    aria-label={c.nombre}
+                    role="img"
+                />
+            ))
+        }
+    </div>
+
+    <p class="aviso-damas">{avisoDamas}</p>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8cqw 6cqw 10cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 4cqw;
+        display: inline-block;
+        color: #7a2335;
+        font-size: 13cqw;
+        line-height: 1.15;
+    }
+
+    /* ── Adorno debajo del título ──────────────────────────────── */
+    .adorno {
+        margin: 1.6cqw auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 18cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.9cqw;
+        height: 1.9cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    .etiqueta {
+        margin: 3cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5cqw;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+
+    .indicacion {
+        margin: 3.6cqw auto 0;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 4.6cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    .pareja {
+        display: block;
+        width: 30cqw;
+        height: auto;
+        margin: 6cqw auto 0;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .separador {
+        display: block;
+        width: 72cqw;
+        height: auto;
+        margin: 6cqw auto 0;
+        opacity: 0.9;
+    }
+
+    .titulo-colores {
+        margin-top: 5cqw;
+        font-size: 11cqw;
+    }
+
+    .texto-colores,
+    .aviso-damas {
+        margin: 3cqw auto 0;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 4.4cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    /*
+       Círculos de color con un brillo arriba, y por fuera un aro de papel
+       y un anillo dorado fino (las dos sombras), como joyas.
+    */
+    .paleta {
+        display: flex;
+        justify-content: center;
+        gap: 4.4cqw;
+        margin-top: 7cqw;
+    }
+
+    .color {
+        display: block;
+        width: 11cqw;
+        height: 11cqw;
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 1.1cqw #f5efe7,
+            0 0 0 calc(1.1cqw + 1px) rgba(176, 141, 87, 0.85),
+            0 5px 12px rgba(40, 20, 20, 0.22);
+    }
+
+    .aviso-damas {
+        margin-top: 7cqw;
+        color: #5e2a2f;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("codigo-vestimenta");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const pareja = seccion.querySelector(".pareja");
+        const separador = seccion.querySelector(".separador");
+        const colores = seccion.querySelector(".titulo-colores");
+
+        // Los títulos se escriben; los márgenes negativos dejan pasar los rulos
+        const tapado = "inset(-40% 100% -40% 0%)";
+        const escrito = "inset(-40% 0% -40% 0%)";
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            seccion.querySelector(".titulo-principal"),
+            { clipPath: tapado },
+            { clipPath: escrito, duration: 1.3, ease: "power1.inOut" },
+        )
+            .fromTo(
+                seccion.querySelector(".adorno-rombo"),
+                { opacity: 0, scale: 0, rotate: -45 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    ease: "back.out(2)",
+                },
+                0.8,
+            )
+            .fromTo(
+                seccion.querySelectorAll(".adorno-linea"),
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                0.95,
+            )
+            .fromTo(
+                seccion.querySelectorAll(".etiqueta, .indicacion"),
+                { opacity: 0, y: 12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.9,
+                    stagger: 0.18,
+                    ease: "power2.out",
+                },
+                1,
+            )
+            // La pareja sube con un fundido, como entrando a la fiesta
+            .fromTo(
+                pareja,
+                { opacity: 0, y: 28, filter: "blur(4px)" },
+                {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    duration: 1.3,
+                    ease: "power3.out",
+                },
+                1.2,
+            )
+            // El separador se abre desde el centro
+            .fromTo(
+                separador,
+                { opacity: 0, scaleX: 0.2 },
+                { opacity: 0.9, scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.9,
+            )
+            .fromTo(
+                colores,
+                { clipPath: tapado },
+                { clipPath: escrito, duration: 1.2, ease: "power1.inOut" },
+                2.1,
+            );
+
+        // La paleta tiene su propio disparador: queda más abajo y con uno
+        // solo ya habría terminado de animarse antes de llegar a verla.
+        const paleta = seccion.querySelector(".paleta");
+        if (paleta) {
+            const circulos = paleta.querySelectorAll(".color");
+            let flotando: ReturnType<typeof gsap.to> | null = null;
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: paleta,
+                    start: "top 88%",
+                    toggleActions: "play none none reset",
+                },
+                // Si la entrada se repite, el flotar espera su turno
+                onStart: () => {
+                    flotando?.pause(0);
+                },
+            })
+                .fromTo(
+                    seccion.querySelector(".texto-colores"),
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                )
+                // Los colores caen como gotas, uno tras otro
+                .fromTo(
+                    circulos,
+                    { opacity: 0, y: -22, scale: 0.6 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        stagger: 0.12,
+                        ease: "back.out(2.2)",
+                    },
+                    0.3,
+                )
+                // Después flotan apenas, cada uno a destiempo. Se crea una
+                // sola vez: la entrada se repite al volver a bajar.
+                .add(() => {
+                    if (flotando) {
+                        flotando.restart();
+                        return;
+                    }
+                    flotando = gsap.to(circulos, {
+                        y: -3,
+                        duration: 2.2,
+                        stagger: { each: 0.35, repeat: -1, yoyo: true },
+                        ease: "sine.inOut",
+                    });
+                }, 1.3)
+                .fromTo(
+                    seccion.querySelector(".aviso-damas"),
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                    0.8,
+                );
+        }
+    });
+</script>

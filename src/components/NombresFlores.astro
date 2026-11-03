@@ -1,0 +1,431 @@
+---
+// src/components/NombresFlores.astro
+// Primera sección después de la portada: la foto de los novios a sangre,
+// fundida abajo con el papel. Debajo, sobre el papel, "Nos casamos", los
+// nombres escalonados con el "&" dorado entre los dos, un adorno con
+// rombo y la fecha.
+//
+// Entrada: la foto se abre como una ventana redondeada, los nombres se
+// escriben de izquierda a derecha como a mano, el "&" entra girando y el
+// adorno se dibuja desde el centro. Al bajar, la foto va más lenta que la
+// página (parallax).
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const foto = "/imagenes/foto6.jpg";
+const alt = "Roy y Nagely juntos";
+const anuncio = "Nos casamos";
+const novio = "Roy";
+const novia = "Nagely";
+const fechaMes = "nov";
+const fechaDia = "29";
+const fechaAnio = "2026";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="sobre-novios" class="seccion">
+    <!-- La foto, a sangre y fundida abajo con el papel -->
+    <div id="nf-foto-caja" class="foto-caja">
+        <img id="nf-foto" src={foto} alt={alt} class="foto" />
+    </div>
+
+    <!-- Anuncio, nombres, adorno y fecha, sobre el papel -->
+    <div id="nf-texto" class="texto">
+        <p class="anuncio">{anuncio}</p>
+
+        <p class="nombres font-great-vibes">
+            <span class="nombre nombre-novio">{novio}</span>
+            <em class="amp" aria-label="y">&</em>
+            <span class="nombre nombre-novia">{novia}</span>
+        </p>
+
+        <!-- Adorno: dos filetes que salen de un rombo -->
+        <div class="adorno" aria-hidden="true">
+            <i class="adorno-linea adorno-izq"></i>
+            <i class="adorno-rombo"></i>
+            <i class="adorno-linea adorno-der"></i>
+        </div>
+
+        <p class="fecha">
+            <span class="fecha-parte">{fechaMes}</span>
+            <i aria-hidden="true"></i>
+            <span class="fecha-parte fecha-dia">{fechaDia}</span>
+            <i aria-hidden="true"></i>
+            <span class="fecha-parte">{fechaAnio}</span>
+        </p>
+    </div>
+</section>
+
+<style>
+    /*
+       Sección a sangre: la foto llega a los dos bordes de la columna.
+       El papel va declarado como degradado y no como color: el modo
+       oscuro forzado oscurece colores pero respeta las imágenes.
+    */
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Blanco como el resto de la página: con crema se notaba el corte */
+        background-image: linear-gradient(#f5efe7, #f5efe7);
+        padding-bottom: 11cqw;
+    }
+
+    .foto-caja {
+        position: relative;
+        width: 100%;
+        height: 128cqw;
+        max-height: 78svh;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 58%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 58%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    }
+
+    /*
+       Un 12% más alta y corrida hacia arriba: ese sobrante es el que
+       recorre el parallax al bajar, sin dejar nunca un hueco arriba.
+    */
+    .foto {
+        position: relative;
+        top: -12%;
+        display: block;
+        width: 100%;
+        height: 112%;
+        object-fit: cover;
+        object-position: center 40%;
+    }
+
+    /* Arranca donde la foto ya terminó de fundirse: los textos van sobre el papel */
+    .texto {
+        position: relative;
+        z-index: 2;
+        margin-top: 1cqw;
+        text-align: center;
+    }
+
+    .anuncio {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        /* Grande para el celular: más chico no se leía */
+        font-size: 6.2cqw;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        /* el espaciado deja aire a la derecha: esto lo compensa */
+        text-indent: 0.3em;
+        color: #8a6a36;
+    }
+
+    /*
+       Los nombres escalonados: el del novio corrido a la izquierda, el de
+       la novia a la derecha, y el "&" dorado en el medio, montado entre
+       los dos. Cada nombre queda en su renglón, así entran nombres largos.
+    */
+    .nombres {
+        margin: 4.5cqw 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #7a2335;
+        font-size: 14cqw;
+        line-height: 1.05;
+    }
+
+    .nombre {
+        display: block;
+        position: relative;
+        /* Aire para los rulos de la Great Vibes: si no, el recorte de la
+           entrada los corta */
+        padding: 0 4cqw;
+    }
+
+    .nombre-novio {
+        left: -7cqw;
+    }
+
+    .nombre-novia {
+        left: 7cqw;
+    }
+
+    .amp {
+        display: block;
+        /*
+           Separado de los dos nombres: lo que cuelga del nombre del novio
+           y el rulo de la mayúscula de la novia, pegados, chocaban.
+        */
+        margin: 4.5cqw 0 2.5cqw;
+        font-style: normal;
+        font-size: 0.58em;
+        line-height: 1;
+        /* Dorado con brillo, como los anillos de la portada */
+        background-image: linear-gradient(
+            135deg,
+            #e6cd8c 0%,
+            #b8913f 45%,
+            #8f6a26 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        /* Que el degradado no se corte en los rulos */
+        padding: 0 3cqw;
+    }
+
+    /* ── Adorno ─────────────────────────────────────────────────── */
+    .adorno {
+        margin: 5cqw auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.6cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 22cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 2cqw;
+        height: 2cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    /* ── Fecha ──────────────────────────────────────────────────── */
+    .fecha {
+        margin: 4.6cqw 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4.4cqw;
+        /*
+           Cinzel: mayúsculas romanas finas y números todos a la misma
+           altura. La Cormorant tenía el 1 chiquito y el 9 colgando.
+        */
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 5.6cqw;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #6e5a52;
+    }
+
+    .fecha i {
+        display: block;
+        width: 1px;
+        height: 9cqw;
+        background-image: linear-gradient(
+            180deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 50%,
+            rgba(176, 141, 87, 0) 100%
+        );
+    }
+
+    .fecha-dia {
+        font-size: 10cqw;
+        letter-spacing: 0.06em;
+        color: #7a2335;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("sobre-novios");
+        const caja = document.getElementById("nf-foto-caja");
+        const foto = document.getElementById("nf-foto");
+        const texto = document.getElementById("nf-texto");
+        if (!seccion || !caja || !foto || !texto) return;
+
+        // Sin animación si el visitante pidió menos movimiento: la
+        // sección ya está armada y visible en el HTML.
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const anuncio = texto.querySelector(".anuncio");
+        const nombres = texto.querySelectorAll(".nombre");
+        const amp = texto.querySelector(".amp");
+        const lineas = texto.querySelectorAll(".adorno-linea");
+        const rombo = texto.querySelector(".adorno-rombo");
+        const fecha = texto.querySelectorAll(".fecha-parte, .fecha i");
+
+        /*
+           Los nombres se "escriben": un recorte que se abre de izquierda a
+           derecha. Los márgenes negativos de arriba y abajo dejan pasar
+           los rulos que se salen del renglón.
+        */
+        const tapado = "inset(-40% 100% -40% 0%)";
+        const escrito = "inset(-40% 0% -40% 0%)";
+
+        gsap.set(caja, {
+            opacity: 0,
+            clipPath: "inset(14% 16% 14% 16% round 50%)",
+        });
+        gsap.set(foto, { scale: 1.15 });
+        gsap.set(anuncio, { opacity: 0, letterSpacing: "0.6em" });
+        gsap.set(nombres, { clipPath: tapado });
+        gsap.set(amp, { opacity: 0, scale: 0.4, rotate: -25 });
+        gsap.set(lineas, { scaleX: 0 });
+        gsap.set(rombo, { opacity: 0, scale: 0, rotate: -45 });
+        gsap.set(fecha, { opacity: 0, y: 14 });
+
+        /*
+           Arranca pausada. Con portada la larga el botón de ingreso (un
+           ScrollTrigger se consumiría solo, tapado por la portada); sin
+           portada, la larga el scroll como en las demás secciones.
+        */
+        const linea = gsap.timeline({ paused: true });
+
+        linea
+            // 1 · la foto se abre como una ventana y se va acomodando
+            .to(caja, { opacity: 1, duration: 0.6, ease: "power1.out" })
+            .to(
+                caja,
+                {
+                    clipPath: "inset(0% 0% 0% 0% round 0%)",
+                    duration: 1.5,
+                    ease: "power3.inOut",
+                },
+                0,
+            )
+            .to(foto, { scale: 1, duration: 2.8, ease: "power2.out" }, 0)
+            // 2 · "Nos casamos" se asienta, cerrando el espaciado
+            .to(
+                anuncio,
+                {
+                    opacity: 1,
+                    letterSpacing: "0.3em",
+                    duration: 1.4,
+                    ease: "power2.out",
+                },
+                0.9,
+            )
+            // 3 · los nombres se escriben, uno después del otro
+            .to(
+                nombres[0],
+                { clipPath: escrito, duration: 1.1, ease: "power1.inOut" },
+                1.2,
+            )
+            .to(
+                amp,
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 0,
+                    duration: 0.9,
+                    ease: "back.out(1.8)",
+                },
+                1.9,
+            )
+            .to(
+                nombres[1],
+                { clipPath: escrito, duration: 1.2, ease: "power1.inOut" },
+                2.2,
+            )
+            // 4 · el adorno se dibuja desde el rombo hacia afuera
+            .to(
+                rombo,
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.7,
+                    ease: "back.out(2)",
+                },
+                2.9,
+            )
+            .to(
+                lineas,
+                { scaleX: 1, duration: 1, ease: "power2.out" },
+                3.05,
+            )
+            // 5 · la fecha sube, parte por parte
+            .to(
+                fecha,
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.09,
+                    ease: "power2.out",
+                },
+                3.2,
+            );
+
+        // ── Parallax: al bajar, la foto va más lenta que la página ──
+        gsap.to(foto, {
+            yPercent: 9,
+            ease: "none",
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+            },
+        });
+
+        // ═══ QUIÉN LARGA LA ENTRADA ═══
+        function arrancar() {
+            // La portada bloqueaba el scroll: las medidas de la carga ya
+            // no valen y hay que rehacerlas antes de reproducir.
+            ScrollTrigger.refresh();
+            linea.restart();
+        }
+
+        const portada = document.getElementById("portada-section");
+
+        if ((window as any).portadaAbierta) {
+            arrancar();
+        } else if (portada) {
+            window.addEventListener("portada-abierta", arrancar, {
+                once: true,
+            });
+        } else {
+            ScrollTrigger.create({
+                trigger: caja,
+                start: "top 78%",
+                onEnter: () => linea.restart(),
+                onLeaveBack: () => linea.pause(0),
+            });
+        }
+    });
+</script>

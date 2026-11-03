@@ -1,0 +1,343 @@
+---
+// src/components/Versiculo.astro
+// Recuadro bordó con un marco dorado fino adentro, comillas en cursiva
+// arriba, la frase en Cinzel blanca y los anillos dorados debajo. La misma
+// flor colgante (florabajo.png) pisa dos esquinas: arriba a la izquierda y
+// abajo a la derecha.
+//
+// Entrada: el recuadro sube, el marco se asienta, la frase aparece palabra
+// por palabra, los anillos se dibujan con un trazo y las flores bajan y
+// quedan meciéndose.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const frase =
+    "El amor es paciente, es bondadoso. El amor no es envidioso ni presumido ni orgulloso. No se comporta con rudeza, no es egoísta, no se enoja fácilmente, no guarda rencor. El amor no se deleita en la maldad, sino que se regocija con la verdad. Todo lo disculpa, todo lo cree, todo lo espera, todo lo soporta. — 1 Corintios 13:4-7";
+// ──────────────────────────────────────────────────────────────
+
+// Cada palabra en su span para que entren de a una
+const palabras = frase.split(" ");
+---
+
+<section id="versiculo" class="seccion">
+    <div id="caja-versiculo" class="caja">
+        <!-- Marco dorado interior, con un rombito arriba y otro abajo -->
+        <span class="marco" aria-hidden="true">
+            <i class="marco-rombo marco-rombo-arriba"></i>
+            <i class="marco-rombo marco-rombo-abajo"></i>
+        </span>
+
+        <span class="comillas font-great-vibes" aria-hidden="true">“</span>
+
+        <p class="texto" aria-label={frase}>
+            {
+                palabras.map((palabra, i) => (
+                    <>
+                        <span class="palabra" aria-hidden="true">
+                            {palabra}
+                        </span>
+                        {i < palabras.length - 1 && " "}
+                    </>
+                ))
+            }
+        </p>
+
+        <!-- Anillos -->
+        <svg class="anillos" viewBox="0 0 64 44" aria-hidden="true">
+            <defs>
+                <linearGradient id="oro-versiculo" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f3dc9a"></stop>
+                    <stop offset="50%" stop-color="#c9a24e"></stop>
+                    <stop offset="100%" stop-color="#8f6a26"></stop>
+                </linearGradient>
+            </defs>
+            <circle
+                class="anillo"
+                cx="24"
+                cy="26"
+                r="14"
+                fill="none"
+                stroke="url(#oro-versiculo)"
+                stroke-width="3.4"></circle>
+            <circle
+                class="anillo"
+                cx="40"
+                cy="26"
+                r="14"
+                fill="none"
+                stroke="url(#oro-versiculo)"
+                stroke-width="3.4"></circle>
+            <path
+                class="diamante"
+                d="M36 9 L40 4 L44 9 L40 12 Z"
+                fill="#f6f1e4"
+                stroke="#c9a24e"
+                stroke-width="1"></path>
+        </svg>
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 12% 0 10%;
+    }
+
+    /* Las letras se miden contra el recuadro, no contra la pantalla */
+    .caja {
+        container-type: inline-size;
+        position: relative;
+        width: 90%;
+        margin: 0 auto;
+        padding: 10cqw 11cqw 11cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 30%,
+                rgba(255, 255, 255, 0.09) 0%,
+                rgba(255, 255, 255, 0) 65%
+            ),
+            linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
+        box-shadow: 0 10px 24px rgba(70, 20, 30, 0.22);
+    }
+
+    /* ── Marco dorado interior ─────────────────────────────────── */
+    .marco {
+        position: absolute;
+        inset: 3.4cqw;
+        border: 1px solid rgba(216, 190, 130, 0.55);
+        pointer-events: none;
+    }
+
+    /* Un rombito tapando el filete, arriba y abajo al centro */
+    .marco-rombo {
+        position: absolute;
+        left: 50%;
+        width: 2.4cqw;
+        height: 2.4cqw;
+        margin-left: -1.2cqw;
+        border: 1px solid rgba(216, 190, 130, 0.85);
+        background-image: linear-gradient(#742134, #742134);
+        transform: rotate(45deg);
+    }
+
+    .marco-rombo-arriba {
+        top: -1.2cqw;
+    }
+
+    .marco-rombo-abajo {
+        bottom: -1.2cqw;
+    }
+
+    .comillas {
+        position: relative;
+        z-index: 1;
+        display: block;
+        height: 11cqw;
+        font-size: 32cqw;
+        line-height: 0.9;
+        color: #d8be82;
+        opacity: 0.9;
+    }
+
+    .texto {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 5.4cqw;
+        line-height: 1.45;
+        letter-spacing: 0.04em;
+        color: #f7f1e8;
+    }
+
+    /* inline-block para que cada palabra pueda subir sola */
+    .palabra {
+        display: inline-block;
+    }
+
+    .anillos {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 17cqw;
+        height: auto;
+        margin-top: 8cqw;
+        overflow: visible;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 16cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -9cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -17cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const caja = document.getElementById("caja-versiculo");
+        if (!caja) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const marco = caja.querySelector(".marco");
+        const rombos = caja.querySelectorAll(".marco-rombo");
+        const comillas = caja.querySelector(".comillas");
+        const palabras = caja.querySelectorAll(".palabra");
+        const anillos = caja.querySelectorAll<SVGCircleElement>(".anillo");
+        const diamante = caja.querySelector(".diamante");
+        const flores = caja.querySelectorAll(".flor");
+
+        // El largo del trazo de cada anillo: con eso se "dibujan"
+        const largo = anillos[0]?.getTotalLength() ?? 88;
+        let vaiven: ReturnType<typeof gsap.to> | null = null;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: caja,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            caja,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            // El marco se asienta desde un poco más grande
+            .fromTo(
+                marco,
+                { opacity: 0, scale: 1.06 },
+                { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" },
+                0.3,
+            )
+            .fromTo(
+                rombos,
+                { scale: 0, rotate: 0 },
+                {
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    stagger: 0.15,
+                    ease: "back.out(2)",
+                },
+                0.7,
+            )
+            .fromTo(
+                comillas,
+                { opacity: 0, y: -10 },
+                { opacity: 0.9, y: 0, duration: 0.8, ease: "power2.out" },
+                0.5,
+            )
+            // La frase, palabra por palabra
+            .fromTo(
+                palabras,
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    stagger: 0.07,
+                    ease: "power2.out",
+                },
+                0.7,
+            )
+            // Los anillos se dibujan, después aparece el diamante
+            .fromTo(
+                anillos,
+                { strokeDasharray: largo, strokeDashoffset: largo },
+                {
+                    strokeDashoffset: 0,
+                    duration: 1.3,
+                    stagger: 0.25,
+                    ease: "power2.inOut",
+                },
+                ">-0.3",
+            )
+            .fromTo(
+                diamante,
+                { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
+                { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.5)" },
+                ">-0.2",
+            )
+            .fromTo(
+                flores,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                    // Si la entrada se repite, el vaivén espera su turno
+                    onStart: () => {
+                        vaiven?.pause();
+                    },
+                },
+                0.5,
+            )
+            // Después, las flores quedan meciéndose apenas. Se crea una
+            // sola vez: la entrada se repite al volver a bajar.
+            .add(() => {
+                if (vaiven) {
+                    vaiven.restart();
+                    return;
+                }
+                vaiven = gsap.to(flores, {
+                    rotate: 3,
+                    duration: 3.2,
+                    stagger: 0.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+            });
+    });
+</script>

@@ -1,0 +1,443 @@
+---
+// src/components/Cronograma.astro
+// "Cronograma" con el adorno de rombo debajo, y el
+// programa del día como en una invitación impresa: una fila por momento,
+// con la hora a la izquierda, un círculo chico con el ícono en el centro
+// y el nombre en cursiva a la derecha. Un hilo dorado fino une los
+// círculos de arriba abajo.
+//
+// Entrada: el hilo se dibuja al ritmo del scroll; cuando llega a cada
+// momento, el círculo se enciende con un destello suave, la hora aparece
+// y el nombre se escribe de izquierda a derecha.
+//
+// Letras y colores, los del resto de la invitación: nombres en Great
+// Vibes bordó, horas en Cinzel con el "P.M." chiquito y dorado. Los íconos
+// se pintan con la máscara de .icono (global.css) en el mismo bordó.
+//
+// Todo se mide contra el ancho de la columna: 1cqw = 1% de ese ancho.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Cronograma";
+
+/*
+   Un momento por fila, en orden. Los íconos salen de /imagenes/iconos.
+
+   La hora se escribe "4:00 P.M.": lo de antes del espacio va en Cinzel y
+   lo de después chiquito y dorado. Si un momento va sin hora, hora: "".
+*/
+const momentos = [
+    { nombre: "Recepción", hora: "4:00 P.M.", icono: "recepcion.png" },
+    { nombre: "Religiosa", hora: "4:30 P.M.", icono: "ceremoniareligiosa.png" },
+    { nombre: "Recepción Social", hora: "6:30 P.M.", icono: "brindis.png" },
+    { nombre: "Civil", hora: "7:00 P.M.", icono: "ceremoniacivil.png" },
+    { nombre: "Primer Baile", hora: "8:00 P.M.", icono: "baile.png" },
+    { nombre: "Cena", hora: "8:30 P.M.", icono: "cena.png" },
+    { nombre: "Torta", hora: "9:00 P.M.", icono: "torta.png" },
+    { nombre: "Celebración", hora: "10:00 P.M.", icono: "celebracion.png" },
+];
+// ──────────────────────────────────────────────────────────────
+
+function partirHora(hora: string) {
+    const espacio = hora.indexOf(" ");
+    if (espacio === -1) return { numero: hora, sufijo: "" };
+    return { numero: hora.slice(0, espacio), sufijo: hora.slice(espacio + 1) };
+}
+---
+
+<section id="cronograma" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+
+    <!-- Adorno: dos filetes que salen de un rombo -->
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <ol id="linea-tiempo" class="programa">
+        <!-- El hilo dorado: una base apenas marcada y la luz que lo dibuja -->
+        <span class="hilo" aria-hidden="true">
+            <span class="hilo-luz"></span>
+        </span>
+
+        {
+            momentos.map((momento) => {
+                const { numero, sufijo } = partirHora(momento.hora);
+                return (
+                    <li class="momento">
+                        <p class="hora">
+                            {momento.hora && (
+                                <>
+                                    <span class="hora-num">{numero}</span>
+                                    {sufijo && (
+                                        <span class="hora-suf">{sufijo}</span>
+                                    )}
+                                </>
+                            )}
+                        </p>
+
+                        <span class="circulo" aria-hidden="true">
+                            <span class="halo" />
+                            <span
+                                class="icono"
+                                style={`--ic: url("/imagenes/iconos/${momento.icono}")`}
+                            />
+                        </span>
+
+                        <p class="nombre font-great-vibes">{momento.nombre}</p>
+                    </li>
+                );
+            })
+        }
+    </ol>
+
+    <!-- Remate al pie -->
+    <span class="remate" aria-hidden="true"></span>
+</section>
+
+<style>
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 9cqw 0 12cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 4cqw;
+        display: inline-block;
+        color: #7a2335;
+        font-size: 14cqw;
+        line-height: 1.1;
+    }
+
+    /* ── Adorno debajo del título ──────────────────────────────── */
+    .adorno {
+        margin: 2cqw auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 18cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.9cqw;
+        height: 1.9cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    /* ── El programa ───────────────────────────────────────────── */
+    .programa {
+        position: relative;
+        margin: 9cqw 0 0;
+        padding: 0 6cqw;
+        list-style: none;
+    }
+
+    /*
+       El hilo va de centro a centro del primer y del último círculo (las
+       filas miden 21cqw, así que los centros quedan a 10,5cqw del borde).
+       Centrado con margen y no con translate: GSAP reescribe el
+       transform entero al animar la escala.
+    */
+    .hilo {
+        position: absolute;
+        top: 10.5cqw;
+        bottom: 10.5cqw;
+        left: 50%;
+        width: 1px;
+        margin-left: -0.5px;
+        background-image: linear-gradient(
+            rgba(176, 141, 87, 0.25),
+            rgba(176, 141, 87, 0.25)
+        );
+    }
+
+    .hilo-luz {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 0%;
+        background-image: linear-gradient(
+            180deg,
+            #c9a55a 0%,
+            #b08d57 50%,
+            #c9a55a 100%
+        );
+        box-shadow: 0 0 5px rgba(201, 165, 90, 0.5);
+    }
+
+    .momento {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 15cqw 1fr;
+        align-items: center;
+        height: 21cqw;
+    }
+
+    .hora {
+        margin: 0;
+        padding-right: 4cqw;
+        text-align: right;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .hora-num {
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 5.4cqw;
+        letter-spacing: 0.06em;
+        color: #4a3f3a;
+    }
+
+    .hora-suf {
+        margin-left: 1cqw;
+        font-family: "Cinzel", serif;
+        font-size: 2.6cqw;
+        letter-spacing: 0.16em;
+        color: #b08d57;
+    }
+
+    /* Círculo chico, papel claro con filete dorado; tapa el hilo */
+    .circulo {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 12cqw;
+        height: 12cqw;
+        margin: 0 auto;
+        border-radius: 50%;
+        border: 1px solid rgba(176, 141, 87, 0.8);
+        background-image: radial-gradient(
+            circle at 50% 35%,
+            #fffdf8 0%,
+            #f6efe3 100%
+        );
+        box-shadow:
+            inset 0 0 0 0.8cqw #fffdf8,
+            inset 0 0 0 calc(0.8cqw + 1px) rgba(176, 141, 87, 0.3);
+    }
+
+    /* El destello dorado que se expande al encenderse el círculo */
+    .halo {
+        position: absolute;
+        inset: -1px;
+        border-radius: 50%;
+        border: 1px solid rgba(201, 165, 90, 0.9);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .icono {
+        position: relative;
+        display: block;
+        width: 6.4cqw;
+        height: 6.4cqw;
+        background-image: linear-gradient(#7a2335, #7a2335);
+    }
+
+    .nombre {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta */
+        padding: 0 0 0 3cqw;
+        text-align: left;
+        color: #7a2335;
+        font-size: 6.8cqw;
+        /* Un renglón: "Primer Baile" entra justo */
+        white-space: nowrap;
+        line-height: 1.1;
+    }
+
+    /* Rombito al pie del programa */
+    .remate {
+        display: block;
+        width: 2cqw;
+        height: 2cqw;
+        margin: 5cqw auto 0;
+        transform: rotate(45deg);
+        background-image: linear-gradient(
+            135deg,
+            #e6cd8c 0%,
+            #b8913f 60%,
+            #8f6a26 100%
+        );
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("cronograma");
+        const programa = document.getElementById("linea-tiempo");
+        if (!seccion || !programa) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        // ── Encabezado ─────────────────────────────────────────
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        })
+            // Se escribe; los márgenes negativos dejan pasar los rulos
+            .fromTo(
+                seccion.querySelector(".titulo"),
+                { clipPath: "inset(-40% 100% -40% 0%)" },
+                {
+                    clipPath: "inset(-40% 0% -40% 0%)",
+                    duration: 1.5,
+                    ease: "power1.inOut",
+                },
+            )
+            .fromTo(
+                seccion.querySelector(".adorno-rombo"),
+                { opacity: 0, scale: 0, rotate: -45 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 45,
+                    duration: 0.6,
+                    ease: "back.out(2)",
+                },
+                1.1,
+            )
+            .fromTo(
+                seccion.querySelectorAll(".adorno-linea"),
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.25,
+            );
+
+        // ── El hilo se dibuja al ritmo del scroll ──────────────
+        gsap.fromTo(
+            programa.querySelector(".hilo-luz"),
+            { scaleY: 0 },
+            {
+                scaleY: 1,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: programa,
+                    start: "top 65%",
+                    end: "bottom 65%",
+                    scrub: 0.6,
+                },
+            },
+        );
+
+        // ── Cada momento se enciende cuando el hilo llega ──────
+        programa.querySelectorAll(".momento").forEach((momento) => {
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: momento,
+                    start: "center 65%",
+                    toggleActions: "play none none reverse",
+                },
+            })
+                .fromTo(
+                    momento.querySelector(".circulo"),
+                    { opacity: 0, scale: 0.6 },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.6,
+                        ease: "back.out(2.2)",
+                    },
+                )
+                // El destello: un anillo dorado que se agranda y se apaga
+                .fromTo(
+                    momento.querySelector(".halo"),
+                    { opacity: 0.9, scale: 1 },
+                    {
+                        opacity: 0,
+                        scale: 1.7,
+                        duration: 1.1,
+                        ease: "power2.out",
+                    },
+                    0.25,
+                )
+                .fromTo(
+                    momento.querySelector(".icono"),
+                    { opacity: 0, scale: 0.7 },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.6,
+                        ease: "power2.out",
+                    },
+                    0.2,
+                )
+                .fromTo(
+                    momento.querySelector(".hora"),
+                    { opacity: 0, x: -14 },
+                    { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
+                    0.25,
+                )
+                // El nombre se escribe de izquierda a derecha
+                .fromTo(
+                    momento.querySelector(".nombre"),
+                    { clipPath: "inset(-40% 100% -40% 0%)" },
+                    {
+                        clipPath: "inset(-40% 0% -40% 0%)",
+                        duration: 1,
+                        ease: "power1.inOut",
+                    },
+                    0.35,
+                );
+        });
+
+        gsap.fromTo(
+            seccion.querySelector(".remate"),
+            { opacity: 0, scale: 0, rotation: 0 },
+            {
+                opacity: 1,
+                scale: 1,
+                rotation: 45,
+                duration: 0.6,
+                ease: "back.out(2)",
+                scrollTrigger: {
+                    trigger: seccion.querySelector(".remate"),
+                    start: "top 85%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+    });
+</script>

@@ -1,0 +1,305 @@
+---
+// src/components/Restriccion.astro
+// Tarjeta verde "Solo Adultos" con el sello de lacre montado sobre el
+// borde de arriba y el aviso en Cinzel, con la parte importante en
+// negrita y subrayada en dorado. Un filete dorado por dentro, con un
+// rombito abajo. La misma flor colgante (florabajo.png) pisa dos esquinas:
+// arriba a la izquierda y abajo a la derecha.
+//
+// Entrada: la tarjeta sube, el sello se estampa sobre el borde, el título
+// se escribe, el subrayado dorado se dibuja y las flores se mecen.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Solo Adultos";
+// Los renglones van partidos a mano; "destacado" sale en negrita
+const antes =
+    "Los niños siempre tendrán un lugar especial en nuestros corazones; sin embargo, hemos decidido celebrar este día tan importante";
+const destacado = "únicamente en compañía de adultos.";
+const despues =
+    "Esperamos que comprendan nuestra decisión y nos acompañen a disfrutar de una noche única, llena de amor, felicidad y momentos inolvidables. Gracias por ser parte de nuestra historia.";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="restriccion" class="seccion">
+    <div id="tarjeta-restriccion" class="tarjeta">
+        <!-- Filete dorado interior, con un rombito abajo (arriba va el sello) -->
+        <span class="marco" aria-hidden="true">
+            <i class="marco-rombo"></i>
+        </span>
+
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="sello"
+        />
+
+        <p class="titulo font-great-vibes">{titulo}</p>
+        <p class="texto">
+            {antes} <strong class="destacado">{destacado}</strong>
+            <span class="gracias">{despues}</span>
+        </p>
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 14% 0 16%;
+    }
+
+    /* Las letras se miden contra la tarjeta, no contra la pantalla */
+    .tarjeta {
+        container-type: inline-size;
+        position: relative;
+        width: 92%;
+        margin: 0 auto;
+        padding: 15cqw 7cqw 12cqw;
+        text-align: center;
+        color: #f4efe3;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    /* El sello se para sobre el borde de arriba, mitad afuera */
+    .sello {
+        position: absolute;
+        z-index: 3;
+        top: -10cqw;
+        /* Centrado sin transform: la animación de entrada usa scale */
+        left: calc(50% - 10.5cqw);
+        width: 21cqw;
+        height: auto;
+        filter: drop-shadow(0 4px 5px rgba(40, 30, 10, 0.4));
+    }
+
+    /* ── Filete dorado interior ────────────────────────────────── */
+    .marco {
+        position: absolute;
+        inset: 3cqw;
+        border: 1px solid rgba(216, 190, 130, 0.6);
+        pointer-events: none;
+    }
+
+    .marco-rombo {
+        position: absolute;
+        bottom: -1.2cqw;
+        left: 50%;
+        width: 2.4cqw;
+        height: 2.4cqw;
+        margin-left: -1.2cqw;
+        border: 1px solid rgba(216, 190, 130, 0.9);
+        background-image: linear-gradient(#47563a, #47563a);
+        transform: rotate(45deg);
+    }
+
+    .titulo {
+        margin: 0;
+        /* Aire para los rulos: la entrada lo recorta de izquierda a derecha */
+        padding: 0 4cqw;
+        display: inline-block;
+        font-size: 13cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .texto {
+        margin: 5cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 4.8cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #efe8d6;
+    }
+
+    /*
+       La parte importante, subrayada con un filete dorado que es un
+       fondo: así acompaña los renglones si baja de línea, y la entrada
+       lo dibuja agrandando su ancho.
+    */
+    .destacado {
+        font-weight: 700;
+        color: #fbf7ee;
+        padding-bottom: 0.4cqw;
+        background-image: linear-gradient(#d8be82, #d8be82);
+        background-repeat: no-repeat;
+        background-position: 0% 100%;
+        background-size: 100% 1px;
+    }
+
+    .gracias {
+        display: block;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-restriccion");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const flores = tarjeta.querySelectorAll(".flor");
+        let vaiven: ReturnType<typeof gsap.to> | null = null;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+            // Si la entrada se repite, el vaivén espera su turno
+            onStart: () => {
+                vaiven?.pause();
+            },
+        });
+
+        tl.fromTo(
+            tarjeta,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            .fromTo(
+                tarjeta.querySelector(".marco"),
+                { opacity: 0, scale: 1.05 },
+                { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out" },
+                0.3,
+            )
+            .fromTo(
+                tarjeta.querySelector(".marco-rombo"),
+                { scale: 0, rotate: 0 },
+                { scale: 1, rotate: 45, duration: 0.6, ease: "back.out(2)" },
+                0.7,
+            )
+            // El sello se estampa: baja, aprieta y rebota apenas
+            .fromTo(
+                tarjeta.querySelector(".sello"),
+                { opacity: 0, scale: 1.7, rotate: -12 },
+                {
+                    keyframes: [
+                        {
+                            opacity: 1,
+                            scale: 0.9,
+                            rotate: 0,
+                            duration: 0.35,
+                            ease: "power3.in",
+                        },
+                        { scale: 1, duration: 0.3, ease: "back.out(3)" },
+                    ],
+                },
+                0.5,
+            )
+            // El título se escribe; los márgenes negativos dejan pasar los rulos
+            .fromTo(
+                tarjeta.querySelector(".titulo"),
+                { clipPath: "inset(-40% 100% -40% 0%)" },
+                {
+                    clipPath: "inset(-40% 0% -40% 0%)",
+                    duration: 1.2,
+                    ease: "power1.inOut",
+                },
+                0.9,
+            )
+            .fromTo(
+                tarjeta.querySelector(".texto"),
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                1.4,
+            )
+            // El subrayado dorado se dibuja de izquierda a derecha
+            .fromTo(
+                tarjeta.querySelector(".destacado"),
+                { backgroundSize: "0% 1px" },
+                {
+                    backgroundSize: "100% 1px",
+                    duration: 1.2,
+                    ease: "power2.inOut",
+                },
+                2,
+            )
+            .fromTo(
+                flores,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.5,
+            )
+            // Después las flores se mecen. Se crea una sola vez: la entrada
+            // se repite al volver a bajar.
+            .add(() => {
+                if (vaiven) {
+                    vaiven.restart();
+                    return;
+                }
+                vaiven = gsap.to(flores, {
+                    rotate: 3,
+                    duration: 3.2,
+                    stagger: 0.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+            });
+    });
+</script>

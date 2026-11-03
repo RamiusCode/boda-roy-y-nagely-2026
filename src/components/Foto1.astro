@@ -1,0 +1,178 @@
+---
+// src/components/Foto1.astro
+// Galería de cuatro fotos en cuadrícula de 2x2, separadas por una línea
+// fina de papel, con el sello de lacre en el cruce del medio.
+//
+// Las fotos se cambian en la lista de abajo, una por casilla.
+//
+// Entrada: cada foto se descubre como una cortina, cada una desde un lado
+// distinto, mientras se acomoda con un zoom suave; al final el sello se
+// estampa en el cruce.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+/*
+   "pos" es qué parte de la foto se ve en la casilla (vertical, 4:5): en
+   las apaisadas, dónde caen las caras. Sin "pos", el centro.
+*/
+const fotos = [
+    { src: "/imagenes/foto2.jpg", alt: "El novio con la novia en brazos", pos: "54% center" },
+    { src: "/imagenes/foto4.jpg", alt: "Los novios frente a frente en el sendero", pos: "50% center" },
+    { src: "/imagenes/foto3.jpg", alt: "Los novios abrazados frente a la capilla", pos: "52% center" },
+    { src: "/imagenes/foto5.jpg", alt: "Los novios bailando en el jardín", pos: "53% center" },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="galeria-fotos" class="seccion">
+    <div class="grilla">
+        {
+            fotos.map((f) => (
+                <div class="casilla">
+                    <img
+                        src={f.src}
+                        alt={f.alt}
+                        loading="lazy"
+                        class="foto"
+                        style={f.pos ? `object-position: ${f.pos};` : undefined}
+                    />
+                </div>
+            ))
+        }
+
+        <!-- El sello en el cruce de las cuatro fotos -->
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="sello"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las medidas se toman contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 6cqw 4cqw 8cqw;
+    }
+
+    .grilla {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.6cqw;
+    }
+
+    .casilla {
+        overflow: hidden;
+        /* Vertical, como en el diseño */
+        aspect-ratio: 4 / 5;
+        box-shadow: 0 4px 12px rgba(40, 30, 20, 0.15);
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
+    }
+
+    /* Centrado sin transform: la animación de entrada usa scale */
+    .sello {
+        position: absolute;
+        z-index: 2;
+        top: calc(50% - 9cqw);
+        left: calc(50% - 9.5cqw);
+        width: 19cqw;
+        height: auto;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(40, 30, 10, 0.45));
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("galeria-fotos");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const casillas = seccion.querySelectorAll(".casilla");
+        const fotos = seccion.querySelectorAll(".foto");
+        const sello = seccion.querySelector(".sello");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 78%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        /*
+           Cada foto se descubre desde un lado distinto, siempre desde el
+           borde de afuera hacia el cruce: la de arriba a la izquierda
+           baja, la de la derecha entra hacia la izquierda, y así.
+        */
+        const tapados = [
+            "inset(0% 0% 100% 0%)", // arriba izquierda: baja
+            "inset(0% 0% 0% 100%)", // arriba derecha: hacia la izquierda
+            "inset(0% 100% 0% 0%)", // abajo izquierda: hacia la derecha
+            "inset(100% 0% 0% 0%)", // abajo derecha: sube
+        ];
+
+        casillas.forEach((casilla, i) => {
+            tl.fromTo(
+                casilla,
+                { clipPath: tapados[i % tapados.length] },
+                {
+                    clipPath: "inset(0% 0% 0% 0%)",
+                    duration: 1.1,
+                    ease: "power3.inOut",
+                    // Sin el recorte al terminar: si no, corta la sombra
+                    onComplete: () => {
+                        gsap.set(casilla, { clearProps: "clipPath" });
+                    },
+                },
+                i * 0.2,
+            );
+        });
+
+        tl.fromTo(
+            fotos,
+            { scale: 1.18 },
+            { scale: 1, duration: 2.2, stagger: 0.2, ease: "power2.out" },
+            0,
+        )
+            // Y al final el sello se estampa en el cruce: baja, aprieta y
+            // rebota apenas
+            .fromTo(
+                sello,
+                { opacity: 0, scale: 1.7, rotate: -12 },
+                {
+                    keyframes: [
+                        {
+                            opacity: 1,
+                            scale: 0.9,
+                            rotate: 0,
+                            duration: 0.35,
+                            ease: "power3.in",
+                        },
+                        { scale: 1, duration: 0.3, ease: "back.out(3)" },
+                    ],
+                },
+                1.2,
+            );
+    });
+</script>

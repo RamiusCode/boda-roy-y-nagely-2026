@@ -1,0 +1,963 @@
+---
+// src/components/Portada.astro - Portada con la foto de los novios arriba
+// (se funde con el papel), los nombres, y el sobre cerrado con la tarjeta
+// verde asomando por delante. Todo el grupo sobre + tarjeta es el botón.
+// El sobre se arma con la misma imagen recortada en capas (cuerpo, solapa
+// con sello y monograma, flores): así la solapa puede abrirse en 3D y el
+// sello queda POR ENCIMA de la tarjeta. Se inclina con el celular.
+// La melodía arranca al tocar el sobre (ver abrirTodo, en el script): es
+// el único momento en que el navegador deja sonar un audio, porque hace
+// falta un gesto de la persona. Desde ahí la maneja BotonMusica.astro.
+import { tamanoNombres } from "../scripts/tamanoNombres";
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const novios = "Roy & Nagely";
+const llamada = "Da clic al sobre para abrir";
+
+const tituloTarjeta = "Nuestra Boda";
+const fechaSemana = "Domingo";
+const fechaDia = "29";
+const fechaMes = "Noviembre";
+const fechaAnio = "2026";
+const esperamos = "¡Te esperamos!";
+const frase1 = "Será un honor celebrar";
+const frase2 = "este día contigo";
+// ──────────────────────────────────────────────────────────────
+
+// El sobre sin letras: el monograma se escribe encima con las iniciales
+// de `novios`, así sirve para cualquier pareja sin tocar la imagen.
+const imagenSobre = "/imagenes/sobre-portada.webp";
+const iniciales = novios.split("&").map((nombre) => nombre.trim().charAt(0));
+// Van en un renglón: con nombres largos la letra se achica para entrar
+const tamanoTitulo = tamanoNombres(novios, 13, 182);
+---
+
+<!-- CAPA BLANCA DE TRANSICIÓN — tapa el fondo del layout durante el fade -->
+<div
+    id="capa-blanca"
+    style="
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(#f5efe7, #f5efe7);
+    z-index: 8499;
+    opacity: 1;
+    pointer-events: none;
+"
+>
+</div>
+
+<!--
+   La portada va por debajo del botón flotante de música (z 9000) para que
+   el control siga accesible mientras la portada se desvanece.
+-->
+<section
+    class="fixed inset-0 w-full h-screen flex justify-center z-[8500]"
+    id="portada-section"
+    style="background-image: linear-gradient(#efe9e1, #efe9e1);"
+>
+    <!-- Columna móvil: el diseño nunca se estira en tablet / PC -->
+    <div class="marco">
+        <!-- Foto de arriba: se funde con el papel por abajo -->
+        <div class="foto" id="portada-foto" aria-hidden="true">
+            <img src="/imagenes/foto1.jpg" alt="" />
+        </div>
+
+        <!-- Aire para que los nombres caigan sobre el fundido de la foto -->
+        <div class="aire-arriba"></div>
+
+        <div class="encabezado" id="encabezado-portada">
+            <p
+                class="novios font-great-vibes"
+                style={`font-size: ${tamanoTitulo}cqw;`}
+            >
+                {novios.split("&").map((parte, i) => (
+                    <>
+                        {i > 0 && <em class="amp">&</em>}
+                        {parte}
+                    </>
+                ))}
+            </p>
+            <p class="llamada" id="llamada-portada">{llamada}</p>
+        </div>
+
+        <button
+            id="btn-sobre"
+            type="button"
+            aria-label="Abrir la invitación"
+            class="grupo"
+        >
+            <div class="grupo-flota" id="grupo-flota">
+                <!--
+                   El sobre. Encima de la imagen va el papel de adentro,
+                   invisible hasta que se abre: la solapa cerrada lo tapa
+                   entero, así que aparece sin que se note el cambio.
+                -->
+                <div class="sobre" id="sobre">
+                    <img
+                        src={imagenSobre}
+                        alt=""
+                        width="1400"
+                        height="971"
+                        class="sobre-img"
+                    />
+                    <div class="sobre-adentro" id="sobre-adentro" aria-hidden="true">
+                        <span class="adentro-sello"></span>
+                        <span class="adentro-hueco"></span>
+                    </div>
+                </div>
+
+                <!-- Tarjeta verde por delante del sobre -->
+                <div class="tarjeta" id="tarjeta">
+                    <!-- Reflejo de luz que corre según se incline el celular -->
+                    <span class="t-brillo" aria-hidden="true">
+                        <span class="t-brillo-luz" id="t-brillo-luz"></span>
+                    </span>
+                    <p class="t-titulo font-great-vibes">{tituloTarjeta}</p>
+                    <!-- Fecha: día de la semana y mes entre filetes a los
+                         costados del número, y el año en cursiva debajo -->
+                    <p class="t-fecha">
+                        <span class="t-fila">
+                            <span class="t-lado">{fechaSemana}</span>
+                            <span class="t-dia">{fechaDia}</span>
+                            <span class="t-lado">{fechaMes}</span>
+                        </span>
+                        <span class="t-mes font-great-vibes">{fechaAnio}</span>
+                    </p>
+
+                    <!-- Anillos -->
+                    <svg
+                        class="t-anillos"
+                        viewBox="0 0 64 44"
+                        aria-hidden="true"
+                    >
+                        <defs>
+                            <linearGradient
+                                id="oro-anillos"
+                                x1="0"
+                                y1="0"
+                                x2="1"
+                                y2="1"
+                            >
+                                <stop offset="0%" stop-color="#f3dc9a"></stop>
+                                <stop offset="50%" stop-color="#c9a24e"></stop>
+                                <stop offset="100%" stop-color="#8f6a26"></stop>
+                            </linearGradient>
+                        </defs>
+                        <circle
+                            cx="24"
+                            cy="26"
+                            r="14"
+                            fill="none"
+                            stroke="url(#oro-anillos)"
+                            stroke-width="3.4"></circle>
+                        <circle
+                            cx="40"
+                            cy="26"
+                            r="14"
+                            fill="none"
+                            stroke="url(#oro-anillos)"
+                            stroke-width="3.4"></circle>
+                        <path
+                            d="M36 9 L40 4 L44 9 L40 12 Z"
+                            fill="#f6f1e4"
+                            stroke="#c9a24e"
+                            stroke-width="1"></path>
+                    </svg>
+
+                    <p class="t-esperamos font-great-vibes">{esperamos}</p>
+                    <p class="t-frase">
+                        <span>{frase1}</span>
+                        <span>{frase2}</span>
+                    </p>
+
+                    <!-- Flor colgando en la esquina de abajo a la derecha -->
+                    <img
+                        src="/imagenes/florabajo.png"
+                        alt=""
+                        width="828"
+                        height="1476"
+                        class="flor-abajo"
+                        id="flor-abajo"
+                    />
+                </div>
+
+                <!--
+                   La solapa, recortada de la misma imagen, con el monograma
+                   y el sello encima: gira en 3D sobre el borde de arriba al
+                   abrir. El dorso es el papel que se ve cuando ya dio vuelta.
+                   Va después de la tarjeta para que el sello la pise.
+                -->
+                <div class="solapa" id="solapa" aria-hidden="true">
+                    <img
+                        src={imagenSobre}
+                        alt=""
+                        width="1400"
+                        height="971"
+                        class="solapa-cara solapa-frente"
+                    />
+                    <p class="solapa-cara monograma">
+                        {iniciales[0]}<em>&</em>{iniciales[1]}
+                    </p>
+                    <img
+                        src={imagenSobre}
+                        alt=""
+                        width="1400"
+                        height="971"
+                        class="solapa-cara solapa-sello"
+                    />
+                    <span class="solapa-dorso"></span>
+                </div>
+
+                <!-- Las flores otra vez, recortadas, para que no se vayan con la solapa -->
+                <img
+                    src={imagenSobre}
+                    alt=""
+                    width="1400"
+                    height="971"
+                    class="flores"
+                    aria-hidden="true"
+                />
+            </div>
+        </button>
+
+        <div class="aire-abajo"></div>
+    </div>
+</section>
+
+<style>
+    body.portada-activa {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #capa-blanca {
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── Marco / fondo ──────────────────────────────────────── */
+    .marco {
+        /* Los tamaños en cqw se miden contra esta columna, no la ventana */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        max-width: 430px;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /*
+           El papel va declarado como degradado y no como color: el modo
+           oscuro forzado oscurece colores pero respeta las imágenes.
+        */
+        background-image: linear-gradient(180deg, #f6f1ea 0%, #f3ede4 100%);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Foto de arriba ─────────────────────────────────────── */
+    .foto {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 33svh;
+        z-index: 0;
+        pointer-events: none;
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 62%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 62%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    }
+
+    .foto img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* La foto es vertical: se muestra la parte de arriba, con las caras */
+        object-position: center 24%;
+    }
+
+    /*
+       ── Espacios ──────────────────────────────────────────────
+       El de arriba mide casi lo mismo que la foto: los nombres quedan
+       DEBAJO de ella, apenas rozando el fundido, no encima de la pareja.
+    */
+    .aire-arriba {
+        flex: 0 0 auto;
+        height: 28svh;
+    }
+
+    .aire-abajo {
+        flex: 1 1 auto;
+        min-height: 2svh;
+    }
+
+    /* ── Nombres y llamada ──────────────────────────────────── */
+    .encabezado {
+        position: relative;
+        z-index: 2;
+        flex: 0 0 auto;
+        width: 100%;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .novios {
+        margin: 0;
+        color: #7a2335;
+        font-size: 13cqw;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+
+    /* El "&" más chico que los nombres: a tamaño completo pesaba demasiado */
+    .amp {
+        font-style: normal;
+        font-size: 0.7em;
+    }
+
+    .llamada {
+        margin: 0.4rem 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-variant: small-caps;
+        font-weight: 600;
+        font-size: 5cqw;
+        letter-spacing: 0.04em;
+        color: #7a2335;
+    }
+
+    /* ── Sobre + tarjeta (el botón) ─────────────────────────── */
+    .grupo {
+        /* La tarjeta y su letra se miden contra el ancho del sobre */
+        container-type: inline-size;
+        position: relative;
+        z-index: 2;
+        flex: 0 0 auto;
+        /* Achica el grupo en pantallas bajitas para que entre todo */
+        width: min(86cqw, 42svh);
+        margin-top: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .grupo-flota {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /*
+       ── El sobre por capas ─────────────────────────────────────
+       Todas las capas miden lo mismo que la imagen, así los recortes en %
+       caen en el mismo lugar. Medidas de sobre-portada.webp:
+       · solapa: la V de arriba, del borde (14,2%) a la punta (51,7% / 68,3%)
+       · sello: centro en 51,2% / 64,8%
+       · monograma: el marco va de 40,7% a 63,2% de ancho
+    */
+    .sobre,
+    .solapa,
+    .flores {
+        width: 100%;
+        aspect-ratio: 1400 / 971;
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: none;
+    }
+
+    .sobre {
+        position: relative;
+        filter: drop-shadow(0 8px 14px rgba(60, 45, 25, 0.18));
+    }
+
+    .sobre-img,
+    .solapa-cara,
+    .solapa-dorso,
+    .sobre-adentro,
+    .sobre-adentro span {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* El papel de adentro: aparece cuando la solapa empieza a girar */
+    .sobre-adentro {
+        opacity: 0;
+    }
+
+    /* Lo que tapaba el sello, del color del frente del sobre */
+    .adentro-sello {
+        clip-path: ellipse(10% 14.5% at 51.2% 64.8%);
+        background-image: linear-gradient(#ecdecf, #ecdecf);
+    }
+
+    /* El hueco: más oscuro arriba, donde no llega la luz */
+    .adentro-hueco {
+        clip-path: polygon(
+            4.8% 14.2%,
+            99.2% 14.2%,
+            51.7% 68.3%
+        );
+        background-image: linear-gradient(
+            180deg,
+            #cdbba5 0%,
+            #dccbb7 45%,
+            #e6d7c5 100%
+        );
+    }
+
+    .solapa {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 3;
+        transform-origin: 50% 14.2%;
+        transform-style: preserve-3d;
+    }
+
+    .solapa-cara {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    /* Un pelito más grande que el hueco para que no quede una rendija */
+    .solapa-frente {
+        clip-path: polygon(
+            4.6% 14%,
+            99.4% 14%,
+            97.6% 20.5%,
+            93% 27%,
+            51.7% 68.6%,
+            10% 28%,
+            5.6% 21.5%
+        );
+    }
+
+    .monograma {
+        left: 41.3%;
+        top: 29.6%;
+        width: 21.4%;
+        height: 16%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4cqw;
+        /* Letra recta y en negrita: se lee mejor que la cursiva y no se
+           sale del marco */
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 6cqw;
+        line-height: 1;
+        color: #a3303d;
+        /* Apenas por delante del papel: sin esto Safari los mezcla */
+        transform: translateZ(0.5px);
+    }
+
+    .monograma em {
+        font-style: normal;
+        font-size: 0.62em;
+    }
+
+    .solapa-sello {
+        clip-path: ellipse(10% 14.5% at 51.2% 64.8%);
+        filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
+        transform: translateZ(1px);
+    }
+
+    /*
+       El dorso: el mismo triángulo espejado sobre el centro de la solapa
+       (52%), de espaldas. Se ve recién cuando la solapa pasa los 90°.
+    */
+    .solapa-dorso {
+        clip-path: polygon(
+            4.8% 14.2%,
+            99.2% 14.2%,
+            52.3% 68.3%
+        );
+        background-image: linear-gradient(0deg, #f1e5d7 0%, #e3d3c0 100%);
+        transform-origin: 52% 50%;
+        transform: rotateY(180deg);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .flores {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 4;
+        clip-path: polygon(
+            11% 0%,
+            17% 2%,
+            22.5% 9%,
+            22.5% 22%,
+            20% 28%,
+            18% 38%,
+            17% 49%,
+            15% 59%,
+            11.5% 68%,
+            8.5% 68%,
+            6.5% 53%,
+            2.5% 51%,
+            0% 42%,
+            0% 14%,
+            6% 8%
+        );
+    }
+
+    /* ── Reflejo sobre la tarjeta ──────────────────────────────── */
+    .t-brillo {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .t-brillo-luz {
+        position: absolute;
+        top: -10%;
+        left: 0;
+        width: 55%;
+        height: 120%;
+        background-image: linear-gradient(
+            105deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.13) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: translateX(-100%);
+    }
+
+    /*
+       La tarjeta arranca a la altura del sello: el margen negativo (en %
+       del ancho) la sube sobre la parte de abajo del sobre.
+    */
+    .tarjeta {
+        position: relative;
+        z-index: 2;
+        width: 83%;
+        margin-top: -22%;
+        padding: 12cqw 6cqw 7cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #f4efe3;
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 12px 26px rgba(40, 50, 28, 0.3);
+    }
+
+    .t-titulo {
+        margin: 0;
+        font-size: 11cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .t-fecha {
+        margin: 2.4cqw 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #efe8d6;
+    }
+
+    .t-fila {
+        display: flex;
+        align-items: center;
+        gap: 3.2cqw;
+    }
+
+    /* Día de la semana y año: Cinzel chica y espaciada, entre dos filetes */
+    .t-lado {
+        width: 19cqw;
+        padding: 1.3cqw 0 1.1cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 3.3cqw;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        /* el espaciado deja aire a la derecha: esto lo compensa */
+        text-indent: 0.22em;
+        border-top: 1px solid rgba(216, 201, 160, 0.75);
+        border-bottom: 1px solid rgba(216, 201, 160, 0.75);
+    }
+
+    /* El número grande en Cinzel: sus cifras van todas a la misma altura */
+    .t-dia {
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 12cqw;
+        line-height: 1;
+        color: #f7f2e6;
+    }
+
+    .t-mes {
+        margin-top: 0.6cqw;
+        font-size: 8.4cqw;
+        line-height: 1.1;
+        color: #d8c9a0;
+    }
+
+    .t-anillos {
+        display: block;
+        width: 15cqw;
+        height: auto;
+        margin: 3.4cqw 0 2cqw;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .t-esperamos {
+        margin: 0;
+        font-size: 8.6cqw;
+        line-height: 1.15;
+        color: #f7f2e6;
+    }
+
+    .t-frase {
+        margin: 1.6cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-variant: small-caps;
+        font-weight: 600;
+        font-size: 5.3cqw;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+        color: #efe8d6;
+    }
+
+    .t-frase span {
+        display: block;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        position: absolute;
+         right: -6%;
+        bottom: -18%;
+        width: 19%;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Quien pidió menos movimiento, recibe menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+        .grupo-flota {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("portada-activa");
+
+            const boton = document.getElementById("btn-sobre");
+            const flota = document.getElementById("grupo-flota");
+            const foto = document.getElementById("portada-foto");
+            const encabezado = document.getElementById("encabezado-portada");
+            const sobre = document.getElementById("sobre");
+            const tarjeta = document.getElementById("tarjeta");
+            const flor = document.getElementById("flor-abajo");
+            const solapa = document.getElementById("solapa");
+            const adentro = document.getElementById("sobre-adentro");
+            const luz = document.getElementById("t-brillo-luz");
+            const seccion = document.getElementById("portada-section");
+            const capaBlanca = document.getElementById("capa-blanca");
+            if (!boton || !flota || !tarjeta) return;
+
+            const menosMovimiento = window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+            ).matches;
+
+            let abriendo = false;
+
+            // ── Estado inicial ──────────────────────────────────────
+            gsap.set(foto, { opacity: 0, scale: 1.06 });
+            if (encabezado)
+                gsap.set(encabezado.children, { opacity: 0, y: 12 });
+            gsap.set(flota, { opacity: 0, y: 40 });
+            gsap.set(tarjeta, { y: 24 });
+            gsap.set(flor, { opacity: 0, rotate: -8, transformOrigin: "50% 0%" });
+
+            // ── Entrada ─────────────────────────────────────────────
+            const tl = gsap.timeline({ delay: 0.3 });
+
+            tl.to(foto, { opacity: 1, scale: 1, duration: 1.4, ease: "power2.out" })
+                .to(
+                    encabezado ? encabezado.children : [],
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.9,
+                        stagger: 0.18,
+                        ease: "power2.out",
+                    },
+                    0.45,
+                )
+                .to(
+                    flota,
+                    { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" },
+                    0.8,
+                )
+                .to(tarjeta, { y: 0, duration: 1, ease: "power3.out" }, 1.0)
+                .to(
+                    flor,
+                    { opacity: 1, rotate: 0, duration: 1.2, ease: "power2.out" },
+                    1.4,
+                );
+
+            // ── Respiración: el sobre flota apenas ──────────────────
+            if (!menosMovimiento) {
+                tl.add(() => {
+                    gsap.to(flota, {
+                        y: -6,
+                        duration: 2.6,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                    });
+                    gsap.to(flor, {
+                        rotate: 3,
+                        duration: 3.2,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                    });
+                });
+            }
+
+            /*
+               ── Inclinación 3D ───────────────────────────────────────
+               El sobre se ladea apenas siguiendo el celular (giroscopio),
+               el dedo o el mouse, y el reflejo corre por la tarjeta. Sin
+               nada que lo mueva, se mece solo, despacito.
+               En iPhone el giroscopio pide permiso y el único gesto es el
+               toque que abre el sobre, así que ahí lo mueven el dedo y el
+               vaivén solo.
+            */
+            const objetivo = { x: 0, y: 0 }; // grados, lo que pide la entrada
+            const actual = { x: 0, y: 0 };
+            let ultimaEntrada = -10;
+            let inclinando = false;
+            const limitar = (n: number, max: number) =>
+                Math.max(-max, Math.min(max, n));
+
+            const alMover = (e: PointerEvent) => {
+                objetivo.y = ((e.clientX / window.innerWidth) - 0.5) * 18;
+                objetivo.x = -((e.clientY / window.innerHeight) - 0.5) * 12;
+                ultimaEntrada = gsap.ticker.time;
+            };
+
+            let base: number | null = null;
+            const alGirar = (e: DeviceOrientationEvent) => {
+                if (e.beta === null || e.gamma === null) return;
+                // La primera lectura es "derecho": así sirve en cualquier postura
+                base ??= e.beta;
+                objetivo.y = limitar(e.gamma, 25) * 0.4;
+                objetivo.x = -limitar(e.beta - base, 25) * 0.35;
+                ultimaEntrada = gsap.ticker.time;
+            };
+
+            const inclinar = (tiempo: number) => {
+                // Si nadie lo mueve hace 2 s, vuelve al vaivén solo
+                const quieto = tiempo - ultimaEntrada > 2;
+                const metaX = quieto ? Math.cos(tiempo * 0.5) * 2.5 : objetivo.x;
+                const metaY = quieto ? Math.sin(tiempo * 0.7) * 4 : objetivo.y;
+                actual.x += (metaX - actual.x) * 0.08;
+                actual.y += (metaY - actual.y) * 0.08;
+                gsap.set(flota, { rotationX: actual.x, rotationY: actual.y });
+                if (luz) gsap.set(luz, { xPercent: -100 + (actual.y + 12) * 11 });
+            };
+
+            const pararInclinacion = () => {
+                if (!inclinando) return;
+                inclinando = false;
+                gsap.ticker.remove(inclinar);
+                window.removeEventListener("pointermove", alMover);
+                window.removeEventListener("deviceorientation", alGirar);
+            };
+
+            if (!menosMovimiento) {
+                gsap.set(flota, { transformPerspective: 900 });
+                tl.add(() => {
+                    inclinando = true;
+                    gsap.ticker.add(inclinar);
+                    window.addEventListener("pointermove", alMover);
+                    const pidePermiso =
+                        typeof (DeviceOrientationEvent as any)?.requestPermission ===
+                        "function";
+                    if (!pidePermiso)
+                        window.addEventListener("deviceorientation", alGirar);
+                }, 1.6);
+            }
+
+            // ── Suelta el scroll y deja la invitación arrancada en el
+            //    sobre de NombresFlores, su primera sección.
+            const abrirInvitacion = () => {
+                document.body.classList.remove("portada-activa");
+                document.body.style.overflow = "auto";
+
+                const destino = document.getElementById("sobre-novios");
+                if (destino) {
+                    destino.scrollIntoView({ block: "start" });
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+
+                // Aviso para que NombresFlores recién ahora arranque su
+                // entrada (si no, se dispararía en la carga, tapada).
+                (window as any).portadaAbierta = true;
+                window.dispatchEvent(new Event("portada-abierta"));
+            };
+
+            // ── Abrir la invitación ─────────────────────────────────
+            const abrirTodo = () => {
+                if (abriendo) return;
+                abriendo = true;
+
+                pararInclinacion();
+                gsap.killTweensOf([flota, flor]);
+
+                /*
+                   Acá arranca la música, y tiene que ser acá: los
+                   navegadores solo dejan sonar un audio si lo pide un
+                   gesto de la persona. Queda en window.audioGlobal para
+                   que el botón de la esquina maneje esta misma melodía.
+                */
+                const yaExiste = (window as any).audioGlobal as
+                    | HTMLAudioElement
+                    | undefined;
+                const melodia = yaExiste ?? new Audio("/musica/melodia2.mp3");
+                melodia.loop = true;
+                melodia.volume = 0.65;
+                (window as any).audioGlobal = melodia;
+                melodia.play().catch(() => {});
+
+                /*
+                   Con movimiento: la solapa gira en 3D, la tarjeta sale del
+                   sobre inclinada y se endereza hacia la persona.
+                   Sin movimiento: la solapa solo se desvanece.
+                */
+                const abre = menosMovimiento ? 0.4 : 0.45; // gira la solapa
+                const sale = menosMovimiento ? 0.6 : 1.25; // sale la tarjeta
+                const t = gsap.timeline();
+                t
+                    // El sobre se hunde, como si lo apretaran, y se endereza
+                    .to(flota, {
+                        scale: 0.96,
+                        rotationX: 0,
+                        rotationY: 0,
+                        duration: 0.22,
+                        ease: "power2.in",
+                    })
+                    .to(flota, { scale: 1, duration: 0.35, ease: "back.out(2)" })
+                    .set(adentro, { opacity: 1 }, abre);
+
+                if (menosMovimiento) {
+                    t.to(solapa, { opacity: 0, duration: 0.4 }, abre);
+                } else {
+                    t.fromTo(
+                        solapa,
+                        { rotationX: 0, transformPerspective: 1100 },
+                        { rotationX: 180, duration: 1.05, ease: "power2.inOut" },
+                        abre,
+                    )
+                        // Pasado el medio giro quedan detrás de la tarjeta,
+                        // que ya empieza a subir y las pisaría
+                        .set([solapa, ".flores"], { zIndex: 1 }, abre + 0.55);
+                }
+
+                t
+                    // La tarjeta sube, sale del sobre y se agranda hacia la persona
+                    .fromTo(
+                        tarjeta,
+                        { rotationX: 0, transformPerspective: 900 },
+                        {
+                            y: -30,
+                            scale: 1.08,
+                            rotationX: menosMovimiento ? 0 : 10,
+                            duration: 0.5,
+                            ease: "power2.out",
+                        },
+                        sale,
+                    )
+                    .to(
+                        tarjeta,
+                        { rotationX: 0, duration: 0.6, ease: "back.out(1.6)" },
+                        sale + 0.5,
+                    )
+                    .to(luz, { xPercent: 260, duration: 0.9, ease: "power2.inOut" }, sale + 0.2)
+                    /*
+                       De la solapa se desvanecen sus piezas, no ella: con
+                       opacidad el navegador la aplana y se ve el frente
+                       espejado en vez del dorso.
+                    */
+                    .to(
+                        [sobre, foto, ".flores", ...(solapa?.children ?? [])],
+                        { opacity: 0.35, duration: 0.7, ease: "power2.in" },
+                        sale + 0.05,
+                    )
+                    .to(
+                        encabezado ? encabezado.children : [],
+                        { opacity: 0, y: -10, duration: 0.5, ease: "power2.in" },
+                        0.4,
+                    )
+                    // Nos acercamos y la portada se va
+                    .to(
+                        flota,
+                        { scale: 1.12, duration: 0.9, ease: "power2.in" },
+                        sale + 0.55,
+                    )
+                    .to(
+                        seccion,
+                        {
+                            opacity: 0,
+                            duration: 0.6,
+                            ease: "power2.in",
+                            onStart: abrirInvitacion,
+                            onComplete: () => {
+                                seccion?.remove();
+                                // Desvanecer la capa blanca suavemente
+                                gsap.to(capaBlanca, {
+                                    opacity: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out",
+                                    onComplete: () => capaBlanca?.remove(),
+                                });
+                            },
+                        },
+                        sale + 0.95,
+                    );
+            };
+
+            boton.addEventListener("click", abrirTodo);
+        });
+    }
+</script>

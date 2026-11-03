@@ -1,0 +1,146 @@
+---
+// src/components/Agradecimiento.astro
+// El texto de agradecimiento antes del cierre: "Gracias" en Great Vibes
+// bordó y el mensaje de los novios en Cinzel entre dos adornos dorados
+// (filetes con un rombo), igual que la frase de Seccion.astro pero sin el
+// auto.
+//
+// Entrada: los adornos se dibujan desde el rombo y el título y el texto
+// suben saliendo de un desenfoque leve. El texto es largo, así que entra
+// entero y no palabra por palabra.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Gracias";
+const frase =
+    "Después de tantos años de amor, aprendizajes y momentos que nos han hecho más fuertes, estamos por vivir uno de los días más importantes de nuestras vidas. Nos haría inmensamente felices compartir este capítulo tan especial con las personas que, de una u otra manera, han formado parte de nuestra historia. Su presencia será un regalo que guardaremos por siempre en nuestros corazones, porque hay momentos que se vuelven eternos cuando se comparten con quienes amamos. Gracias por acompañarnos en este camino y por ser parte de nuestra historia. Con mucho amor, esperamos abrazarlos y celebrar juntos el comienzo de nuestro para siempre. 🤍💍🕊️";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="agradecimiento" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+
+    <p class="frase">{frase}</p>
+
+    <div class="adorno" aria-hidden="true">
+        <i class="adorno-linea adorno-izq"></i>
+        <i class="adorno-rombo"></i>
+        <i class="adorno-linea adorno-der"></i>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 10cqw 7cqw 8cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0 0 3cqw;
+        font-size: 14cqw;
+        line-height: 1.1;
+        color: #7a2335;
+    }
+
+    /* ── Adornos: dos filetes que salen de un rombo ────────────── */
+    .adorno {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 20cqw;
+        height: 1px;
+    }
+
+    .adorno-izq {
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 141, 87, 0) 0%,
+            #b08d57 100%
+        );
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        background-image: linear-gradient(
+            90deg,
+            #b08d57 0%,
+            rgba(176, 141, 87, 0) 100%
+        );
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.9cqw;
+        height: 1.9cqw;
+        border: 1px solid #b08d57;
+        transform: rotate(45deg);
+    }
+
+    .frase {
+        margin: 6cqw auto;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 4.3cqw;
+        line-height: 1.55;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { animarEntrada } from "../scripts/animaciones";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("agradecimiento");
+        if (!seccion) return;
+
+        animarEntrada(seccion.querySelectorAll(".titulo, .frase"), seccion, {
+            stagger: 0.2,
+        });
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        // Los adornos se dibujan desde el rombo
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        });
+        tl.fromTo(
+            seccion.querySelectorAll(".adorno-rombo"),
+            { opacity: 0, scale: 0, rotate: -45 },
+            {
+                opacity: 1,
+                scale: 1,
+                rotate: 45,
+                duration: 0.6,
+                stagger: 0.15,
+                ease: "back.out(2)",
+            },
+        ).fromTo(
+            seccion.querySelectorAll(".adorno-linea"),
+            { scaleX: 0 },
+            { scaleX: 1, duration: 0.9, ease: "power2.out" },
+            0.15,
+        );
+    });
+</script>
