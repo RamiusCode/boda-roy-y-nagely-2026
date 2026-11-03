@@ -3,11 +3,18 @@
 // La invitación SIN pase: no le pasa `pases` a Invitacion, así que la
 // barrita del pase no se dibuja. Es la que se comparte en un grupo.
 //
+// Además es la que abren los links del panel de invitados (/?i=k7m2p):
+// con `conectado`, el nombre y los pases llegan desde la base y la tarjeta
+// del pase y la ventana de confirmación se llenan solas. Sin ?i= (o con un
+// código que la base no conoce) se ve igual que siempre.
+//
 // Las que llevan pase viven todas en pase[cantidad].astro: /pase1, /pase2...
 import Layout from "../layouts/Layout.astro";
 import Invitacion from "../components/Invitacion.astro";
+import LinkNoDisponible from "../components/LinkNoDisponible.astro";
 ---
 
 <Layout title="Roy & Nagely | 29 de Noviembre 2026">
-    <Invitacion />
+    <LinkNoDisponible />
+    <Invitacion conectado />
 </Layout>

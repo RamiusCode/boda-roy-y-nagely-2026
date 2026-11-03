@@ -18,6 +18,7 @@ import Contador from "./Contador.astro";
 import Calendario from "./Calendario.astro";
 import Seccion from "./Seccion.astro";
 import Agradecimiento from "./Agradecimiento.astro";
+import PaseInvitado from "./PaseInvitado.astro";
 
 /*
    Cuántos lugares reserva esta invitación. No se toca acá: lo manda la
@@ -26,8 +27,16 @@ import Agradecimiento from "./Agradecimiento.astro";
 */
 export interface Props {
     pases?: number;
+    // Con invitado se ve la tarjeta del pase y se confirma con formulario
+    invitado?: string;
+    /*
+       Conectada al panel de invitados (la usa index.astro). La tarjeta del
+       pase y la ventana de confirmación se dibujan escondidas y aparecen
+       solo si el link (?i=) trae un invitado que existe en la base.
+    */
+    conectado?: boolean;
 }
-const { pases = 0 } = Astro.props;
+const { pases = 0, invitado = "", conectado = false } = Astro.props;
 ---
 
 <!-- PORTADA (cubre todo hasta que se toca el botón de ingreso) -->
@@ -36,6 +45,9 @@ const { pases = 0 } = Astro.props;
 <!-- CONTENIDO DE LA INVITACIÓN -->
 <div id="contenido-principal">
     <NombresFlores />
+    {(invitado || conectado) && (
+        <PaseInvitado invitado={invitado} pases={pases} conectado={conectado} />
+    )}
     <Versiculo />
     <NombresPadres />
     <NombresPadrinos />
@@ -49,7 +61,11 @@ const { pases = 0 } = Astro.props;
     <SugerenciaRegalo />
     <Foto1 />
     <Agradecimiento />
-    <Despedida />
+    <Despedida
+        pases={invitado ? pases : 0}
+        invitado={invitado}
+        conectado={conectado}
+    />
 </div>
 
 <!-- El control flotante de la esquina: la nota que pausa y reanuda la melodía -->

@@ -1,0 +1,425 @@
+---
+// src/components/PaseInvitado.astro
+// La tarjeta del pase: a quién va dirigida la invitación y cuántos lugares
+// tiene reservados. Solo se dibuja si llega un invitado (ver Invitacion.astro).
+//
+// Con `conectado` (index.astro) se dibuja escondida y el script la llena con
+// el invitado del link (?i=) cuando contesta la base. Si los novios corrigen
+// el nombre o los pases, cambia sin recargar.
+import { pasesEnSuHonor } from "../scripts/frasesPase";
+
+export interface Props {
+    invitado: string;
+    pases: number;
+    conectado?: boolean;
+}
+const { invitado, pases: pasesProp, conectado = false } = Astro.props;
+
+// Sin invitado todavía (conectada, esperando a la base): la tarjeta va
+// escondida y con un muñequito de molde, que el script copia uno por pase.
+const pases = invitado ? pasesProp : 1;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const encabezado = "Con mucho cariño para";
+const reservado = "Hemos reservado";
+const iniciales = ["R", "N"];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section
+    id="pase-invitado"
+    class="seccion"
+    style={invitado ? undefined : "display: none"}
+    data-conectado={conectado ? "" : undefined}
+>
+    <div class="tarjeta">
+        <!-- Medalla verde con las iniciales, pisando el borde de arriba -->
+        <div class="medalla" aria-hidden="true">
+            <span>{iniciales[0]}<em>&</em>{iniciales[1]}</span>
+        </div>
+
+        <p class="encabezado">{encabezado}</p>
+        <p class="nombre font-great-vibes" id="nombre-invitado">{invitado}</p>
+
+        <div class="adorno" aria-hidden="true">
+            <i class="adorno-linea adorno-izq"></i>
+            <i class="adorno-rombo"></i>
+            <i class="adorno-linea adorno-der"></i>
+        </div>
+
+        <p class="reservado" id="texto-pase">{reservado}</p>
+        <!-- Lo que resalta: el número dentro del círculo verde -->
+        <p class="numero" id="numero-pase"><span id="numero-pases">{pases}</span></p>
+        <p class="honor" id="palabra-pases">{pasesEnSuHonor(pases)}</p>
+
+        <!-- Un muñequito por cada lugar -->
+        <div class="personas" id="iconos-pase" aria-hidden="true">
+            {
+                Array.from({ length: pases }).map(() => (
+                    <span class="persona">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="8" r="4" />
+                            <path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z" />
+                        </svg>
+                    </span>
+                ))
+            }
+        </div>
+
+        <!-- La misma flor en dos esquinas, como en el versículo -->
+        <img
+            src="/imagenes/florabajonuevo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajonuevo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 16cqw 0 14cqw;
+        text-align: center;
+    }
+
+    /*
+       Papel marfil con doble marco dorado. Colores planos; el fondo va
+       como imagen porque el modo oscuro forzado respeta las imágenes.
+    */
+    .tarjeta {
+        position: relative;
+        width: 76cqw;
+        margin: 0 auto;
+        padding: 14cqw 6cqw 9cqw;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #56603a;
+        background-image: linear-gradient(#fdfaf3, #fdfaf3);
+        border: 1px solid #c09a52;
+        outline: 1px solid #c09a52;
+        outline-offset: -2.4cqw;
+        box-shadow: 0 10px 24px rgba(70, 78, 46, 0.16);
+    }
+
+    /* Centrada con márgenes: el transform lo usa la animación */
+    .medalla {
+        position: absolute;
+        top: -8cqw;
+        left: 50%;
+        width: 16cqw;
+        height: 16cqw;
+        margin-left: -8cqw;
+        box-sizing: border-box;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(#6f7a4a, #6f7a4a);
+        border: 0.9cqw solid #fdfaf3;
+        box-shadow:
+            0 0 0 1px #c09a52,
+            0 4px 10px rgba(70, 78, 46, 0.25);
+    }
+
+    .medalla span {
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 4.4cqw;
+        line-height: 1;
+        color: #e2c88c;
+    }
+
+    .medalla em {
+        font-style: normal;
+        font-size: 0.62em;
+    }
+
+    .encabezado {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.5cqw;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #9a7433;
+    }
+
+    /* Puede bajar de renglón: un apellido doble no se achica */
+    .nombre {
+        margin: 2.5cqw 0 0;
+        padding: 0 2cqw;
+        font-size: 10cqw;
+        line-height: 1.2;
+        color: #56603a;
+    }
+
+    .adorno {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.2cqw;
+        margin-top: 3.5cqw;
+    }
+
+    .adorno-linea {
+        display: block;
+        width: 15cqw;
+        height: 1px;
+        background-image: linear-gradient(#c09a52, #c09a52);
+    }
+
+    .adorno-izq {
+        transform-origin: 100% 50%;
+    }
+
+    .adorno-der {
+        transform-origin: 0% 50%;
+    }
+
+    .adorno-rombo {
+        display: block;
+        width: 1.6cqw;
+        height: 1.6cqw;
+        border: 1px solid #c09a52;
+        transform: rotate(45deg);
+    }
+
+    .reservado {
+        margin: 5cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.8cqw;
+        letter-spacing: 0.06em;
+        color: #6e5a52;
+    }
+
+    /* El número en un círculo verde con anillo dorado: lo que resalta */
+    .numero {
+        margin: 3.5cqw 0 0;
+    }
+
+    .numero span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 21cqw;
+        height: 21cqw;
+        box-sizing: border-box;
+        border-radius: 50%;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 11cqw;
+        line-height: 1;
+        color: #fdfaf3;
+        background-image: linear-gradient(#6f7a4a, #6f7a4a);
+        border: 1cqw solid #fdfaf3;
+        box-shadow:
+            0 0 0 1.5px #c09a52,
+            0 6px 14px rgba(70, 78, 46, 0.25);
+    }
+
+    .honor {
+        margin: 3cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        font-size: 5.4cqw;
+        line-height: 1.2;
+        color: #8a6a36;
+    }
+
+    .personas {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2cqw;
+        margin-top: 4.5cqw;
+    }
+
+    .persona {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 8cqw;
+        height: 8cqw;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 1px solid #c09a52;
+    }
+
+    .persona svg {
+        width: 4.2cqw;
+        height: 4.2cqw;
+        fill: #6f7a4a;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -15cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+    import { animarEntrada } from "../scripts/animaciones";
+    import { pasesEnSuHonor } from "../scripts/frasesPase";
+    import {
+        datosInvitado,
+        alCambiarInvitado,
+        type Invitado,
+    } from "../lib/invitado";
+
+    // Las animaciones se arman una sola vez, y recién cuando la tarjeta se
+    // ve: armadas sobre una sección escondida, el disparador queda medido
+    // en cualquier lado.
+    let animada = false;
+
+    function animar(seccion: HTMLElement) {
+        if (animada) return;
+        animada = true;
+
+        animarEntrada(seccion.querySelector(".tarjeta")!, seccion);
+        animarEntrada(
+            seccion.querySelectorAll(
+                ".encabezado, .nombre, .reservado, .honor, .persona",
+            ),
+            seccion,
+            { delay: 0.3, stagger: 0.08 },
+        );
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        })
+            .fromTo(
+                seccion.querySelector(".medalla"),
+                { scale: 0, rotate: -30 },
+                { scale: 1, rotate: 0, duration: 0.7, ease: "back.out(2)" },
+            )
+            .fromTo(
+                seccion.querySelectorAll(".adorno-linea"),
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.9, ease: "power2.out" },
+                0.4,
+            )
+            .fromTo(
+                seccion.querySelector(".numero span"),
+                { scale: 0.6, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.7, ease: "back.out(2)" },
+                0.6,
+            )
+            // Las flores se mecen apenas
+            .fromTo(
+                seccion.querySelectorAll(".flor"),
+                { opacity: 0, rotate: -8 },
+                { opacity: 1, rotate: 0, duration: 1.1, ease: "power2.out" },
+                0.3,
+            );
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("pase-invitado");
+        if (!seccion) return;
+        // Conectada y todavía sin invitado: se anima al aparecer
+        if (seccion.style.display === "none") return;
+        animar(seccion);
+    });
+
+    // ── CONECTADA AL PANEL ────────────────────────────────────────
+    // Un muñequito por pase. Se copia el que ya está dibujado para que
+    // conserve los estilos del componente.
+    function pintarMunecos(pases: number) {
+        const caja = document.getElementById("iconos-pase");
+        const molde = caja?.querySelector(".persona");
+        if (!caja || !molde) return;
+        if (caja.querySelectorAll(".persona").length === pases) return;
+
+        const nuevos = Array.from({ length: pases }, () => {
+            const copia = molde.cloneNode(true) as HTMLElement;
+            // Sin lo que le haya dejado puesto la animación de entrada
+            copia.removeAttribute("style");
+            return copia;
+        });
+        caja.replaceChildren(...nuevos);
+    }
+
+    function pintarPase(nombre: string | null, pases: number | null) {
+        if (nombre) {
+            const el = document.getElementById("nombre-invitado");
+            if (el) el.textContent = nombre;
+        }
+        if (Number.isInteger(pases) && (pases as number) > 0) {
+            const n = pases as number;
+            const num = document.getElementById("numero-pases");
+            const palabra = document.getElementById("palabra-pases");
+            if (num) num.textContent = String(n);
+            if (palabra) palabra.textContent = pasesEnSuHonor(n);
+            pintarMunecos(n);
+        }
+    }
+
+    function mostrar(inv: Invitado | null) {
+        const seccion = document.getElementById("pase-invitado");
+        if (!seccion || !seccion.hasAttribute("data-conectado")) return;
+        // Sin invitado (sin ?i=, borrado o sin conexión) se deja como está:
+        // escondida si nunca llegó nadie, con los últimos datos si ya llegó.
+        if (!inv) return;
+
+        const sinPases =
+            (inv.funciones as { pases?: boolean } | undefined)?.pases === false;
+        for (const id of ["texto-pase", "numero-pase", "palabra-pases", "iconos-pase"]) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = sinPases ? "none" : "";
+        }
+        pintarPase(inv.nombre, sinPases ? null : inv.pases);
+
+        if (seccion.style.display === "none") {
+            seccion.style.display = "";
+            animar(seccion);
+        }
+        // La tarjeta empuja todo lo de abajo: los disparadores se vuelven
+        // a medir
+        ScrollTrigger.refresh();
+    }
+
+    if (document.getElementById("pase-invitado")?.hasAttribute("data-conectado")) {
+        datosInvitado().then(mostrar);
+        alCambiarInvitado((inv) => mostrar(inv));
+    }
+</script>

@@ -15,10 +15,25 @@
 */
 export interface Props {
     pases?: number;
+    // Con un invitado, en vez de WhatsApp se confirma con un formulario
+    invitado?: string;
+    /*
+       Conectada al panel de invitados (index.astro): se dibujan las dos
+       formas de confirmar. Arranca con WhatsApp, como siempre, y si el link
+       (?i=) trae un invitado que existe en la base, cambia al formulario y
+       la respuesta se guarda en el sistema.
+    */
+    conectado?: boolean;
 }
-const { pases = 0 } = Astro.props;
+const { pases = 0, invitado = "", conectado = false } = Astro.props;
+// Con formulario: un invitado fijo (muestra) o la versión conectada
+const conFormulario = Boolean(invitado) || conectado;
+// Mientras no llega el invitado de la base, la ventana lleva un número
+// de molde: el script copia ese botón uno por pase
+const pasesVentana = invitado ? pases : 1;
 
 import { enlaceConfirmar } from "../scripts/mensajeConfirmar";
+import { pasesReservados } from "../scripts/frasesPase";
 import { tamanoNombres } from "../scripts/tamanoNombres";
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
@@ -107,8 +122,21 @@ const pase =
         <div class="tarjeta">
             <p class="t-frase">{frase}</p>
             <p class="t-esperamos font-great-vibes">{esperamos}</p>
-            {pase && <p class="t-pase">{pase}</p>}
-            <label class="t-nombre">
+            {!invitado && pase && <p class="t-pase">{pase}</p>}
+            {conFormulario && (
+            <div
+                class="botones"
+                id="botones-formulario"
+                style={invitado ? undefined : "display: none"}
+            >
+                <button type="button" class="boton" id="abrir-confirmacion">
+                    <span class="boton-texto">Confirmar asistencia</span>
+                    <span class="boton-brillo" aria-hidden="true" />
+                </button>
+            </div>
+            )}
+            {!invitado && (<>
+            <label class="t-nombre" data-whatsapp>
                 <span class="t-nombre-check" aria-hidden="true">✓</span>
                 <input
                     id="confirmar-nombre"
@@ -119,7 +147,7 @@ const pase =
                     aria-label="Tu nombre"
                 />
             </label>
-            <div class="botones">
+            <div class="botones" data-whatsapp>
                 {
                     contactos.map((c) => {
                         const datos = {
@@ -144,6 +172,7 @@ const pase =
                     })
                 }
             </div>
+            </>)}
 
             <!-- Flor colgando en la esquina de abajo a la derecha -->
             <img
@@ -166,6 +195,70 @@ const pase =
             class="sobre sello"
         />
     </div>
+
+    {
+        conFormulario && (
+            <dialog
+                class="confirmacion"
+                id="ventana-confirmacion"
+                data-pases={pasesVentana}
+                data-conectado={conectado ? "" : undefined}
+            >
+                <button type="button" class="c-cerrar" aria-label="Cerrar">×</button>
+
+                <!-- Paso 1: el formulario -->
+                <form class="c-paso c-formulario" method="dialog">
+                    <p class="c-titulo">Confirmación de asistencia</p>
+                    <p class="c-nombre font-great-vibes">{invitado}</p>
+                    <div class="c-adorno" aria-hidden="true">
+                        <i class="adorno-linea adorno-izq"></i>
+                        <i class="adorno-rombo"></i>
+                        <i class="adorno-linea adorno-der"></i>
+                    </div>
+                    <p class="c-reservado">
+                        Tienes <strong>{pasesVentana}</strong> <span class="c-palabra">{pasesReservados(pasesVentana)}</span>.
+                    </p>
+
+                    <p class="c-pregunta">¿Cuántos asistirán?</p>
+                    <div class="c-cantidades" role="radiogroup" aria-label="Cuántos asistirán">
+                        {
+                            Array.from({ length: pasesVentana }).map((_, i) => (
+                                <label class="c-cantidad">
+                                    <input
+                                        type="radio"
+                                        name="asistentes"
+                                        value={i + 1}
+                                        checked={i + 1 === pasesVentana}
+                                    />
+                                    <span>{i + 1}</span>
+                                </label>
+                            ))
+                        }
+                    </div>
+
+                    <button type="submit" class="boton c-confirmar" value="si">
+                        <span class="boton-texto">Confirmar asistencia</span>
+                    </button>
+                    <button type="submit" class="c-no" value="no">No podré asistir</button>
+                </form>
+
+                <!-- Paso 2: la respuesta -->
+                <div class="c-paso c-gracias" hidden>
+                    <div class="c-icono" aria-hidden="true">✓</div>
+                    <p class="c-titulo">¡Muchas gracias!</p>
+                    <p class="c-nombre font-great-vibes">{invitado}</p>
+                    <div class="c-adorno" aria-hidden="true">
+                        <i class="adorno-linea adorno-izq"></i>
+                        <i class="adorno-rombo"></i>
+                        <i class="adorno-linea adorno-der"></i>
+                    </div>
+                    <p class="c-reservado c-respuesta"></p>
+                    <p class="c-detalle"></p>
+                    <button type="button" class="c-no c-cambiar">Cambiar mi respuesta</button>
+                </div>
+            </dialog>
+        )
+    }
 
     <!-- El cierre, como la firma de una carta -->
     <div class="cierre" id="cierre-despedida">
@@ -442,6 +535,221 @@ const pase =
             0 2px 6px rgba(36, 40, 22, 0.3);
     }
 
+    button.boton {
+        border: 0;
+        cursor: pointer;
+    }
+
+    /* ── Ventana de confirmación ──────────────────────────────── */
+    .confirmacion {
+        container-type: inline-size;
+        width: min(88vw, 400px);
+        max-height: 92vh;
+        /* Centrada en la pantalla: el reset de Tailwind le saca el margen */
+        margin: auto;
+        padding: 0;
+        border: 0;
+        border-radius: 22px;
+        overflow: auto;
+        text-align: center;
+        color: #56603a;
+        /* Papel crema, como imagen para el modo oscuro forzado */
+        background-image: linear-gradient(#fdfaf3, #fdfaf3);
+        box-shadow:
+            inset 0 0 0 6px #fdfaf3,
+            inset 0 0 0 7px rgba(192, 154, 82, 0.55),
+            0 20px 50px rgba(36, 40, 22, 0.4);
+    }
+
+    .confirmacion::backdrop {
+        background: rgba(36, 40, 22, 0.55);
+        backdrop-filter: blur(3px);
+    }
+
+    .confirmacion[open] {
+        animation: aparecer 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+
+    @keyframes aparecer {
+        from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.96);
+        }
+    }
+
+    .c-cerrar {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        z-index: 1;
+        padding: 4px 8px;
+        border: 0;
+        background: none;
+        font-size: 26px;
+        line-height: 1;
+        color: #9a8f78;
+        cursor: pointer;
+    }
+
+    .c-paso {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10cqw 7cqw 8cqw;
+    }
+
+    .c-paso[hidden] {
+        display: none;
+    }
+
+    .c-titulo {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 4.2cqw;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #6f7a4a;
+    }
+
+    .c-nombre {
+        margin: 2cqw 0 0;
+        font-size: 10cqw;
+        line-height: 1.2;
+        color: #56603a;
+    }
+
+    .c-adorno {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4cqw;
+        margin-top: 3cqw;
+    }
+
+    .c-adorno .adorno-linea {
+        width: 30cqw;
+    }
+
+    .c-reservado {
+        margin: 4cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 5.6cqw;
+        line-height: 1.3;
+    }
+
+    .c-reservado strong {
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        color: #9a7433;
+    }
+
+    .c-pregunta {
+        margin: 6cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.6cqw;
+        letter-spacing: 0.05em;
+        color: #8a6a36;
+    }
+
+    .c-cantidades {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3cqw;
+        margin-top: 3cqw;
+    }
+
+    .c-cantidad input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .c-cantidad span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 12cqw;
+        height: 12cqw;
+        border-radius: 50%;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 5cqw;
+        color: #6f7a4a;
+        cursor: pointer;
+        background-image: linear-gradient(#fbf8f2, #fbf8f2);
+        box-shadow: inset 0 0 0 1.5px rgba(111, 122, 74, 0.45);
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            color 0.2s ease;
+    }
+
+    /* La elegida, en verde con borde dorado */
+    .c-cantidad input:checked + span {
+        color: #f8f3ea;
+        background-image: linear-gradient(#6f7a4a, #6f7a4a);
+        box-shadow:
+            inset 0 0 0 2px #d2b06a,
+            0 4px 10px rgba(70, 78, 46, 0.3);
+        transform: scale(1.08);
+    }
+
+    .c-cantidad input:focus-visible + span {
+        outline: 2px solid #c09a52;
+        outline-offset: 3px;
+    }
+
+    /* Verde con letras crema y borde dorado */
+    .c-confirmar {
+        width: 100%;
+        margin-top: 7cqw;
+        padding: 4.2cqw 4cqw;
+        font-size: 4cqw;
+        color: #f8f3ea;
+        background-image: linear-gradient(#6f7a4a, #6f7a4a);
+        box-shadow:
+            inset 0 0 0 2px #d2b06a,
+            0 6px 16px rgba(70, 78, 46, 0.35);
+    }
+
+    .c-no {
+        margin-top: 5cqw;
+        padding: 0 0 2px;
+        border: 0;
+        border-bottom: 1px solid currentColor;
+        background: none;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 4.4cqw;
+        color: #6f7a4a;
+        cursor: pointer;
+    }
+
+    .c-icono {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 15cqw;
+        height: 15cqw;
+        margin-bottom: 4cqw;
+        border-radius: 50%;
+        font-size: 7cqw;
+        color: #fdfaf3;
+        background-image: linear-gradient(#6f7a4a, #6f7a4a);
+        box-shadow:
+            0 0 0 4px #fdfaf3,
+            0 0 0 5px #c09a52;
+    }
+
+    .c-detalle {
+        margin: 3cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        font-size: 4.6cqw;
+        line-height: 1.35;
+        color: #6e5a52;
+    }
+
     /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
     .flor-abajo {
         position: absolute;
@@ -566,7 +874,260 @@ const pase =
         type DatosConfirmar,
     } from "../scripts/mensajeConfirmar";
 
+    import { asistiran, pasesReservados } from "../scripts/frasesPase";
+    import {
+        datosInvitado,
+        confirmarAsistencia,
+        alCambiarInvitado,
+        type Invitado,
+    } from "../lib/invitado";
+
     gsap.registerPlugin(ScrollTrigger);
+
+    /*
+       La ventana de confirmación.
+       - En /muestra (invitado fijo) es solo el diseño: la respuesta no se
+         manda a ningún lado, solo se muestra el agradecimiento.
+       - Conectada (index.astro con ?i=): se llena con el invitado que manda
+         la base y la respuesta se guarda en el sistema. Si el link no trae
+         un invitado válido, queda la confirmación por WhatsApp de siempre.
+    */
+    document.addEventListener("DOMContentLoaded", () => {
+        const ventana = document.getElementById(
+            "ventana-confirmacion",
+        ) as HTMLDialogElement | null;
+        const abrir = document.getElementById("abrir-confirmacion");
+        if (!ventana || !abrir) return;
+
+        const conectada = ventana.hasAttribute("data-conectado");
+        const formulario = ventana.querySelector<HTMLFormElement>(".c-formulario")!;
+        const gracias = ventana.querySelector<HTMLElement>(".c-gracias")!;
+        const respuesta = ventana.querySelector<HTMLElement>(".c-respuesta")!;
+        const detalle = ventana.querySelector<HTMLElement>(".c-detalle")!;
+        const tituloGracias = gracias.querySelector<HTMLElement>(".c-titulo");
+        const iconoGracias = gracias.querySelector<HTMLElement>(".c-icono");
+        const textoTituloGracias = tituloGracias?.textContent ?? "";
+        const pregunta = ventana.querySelector<HTMLElement>(".c-pregunta");
+        const cantidades = ventana.querySelector<HTMLElement>(".c-cantidades");
+        const confirmar = formulario.querySelector<HTMLButtonElement>(".c-confirmar");
+        const textoConfirmar = confirmar?.querySelector<HTMLElement>(".boton-texto");
+        const textoBotonConfirmar = textoConfirmar?.textContent ?? "";
+        const envios = formulario.querySelectorAll<HTMLButtonElement>(
+            'button[type="submit"]',
+        );
+
+        let pases = Number(ventana.dataset.pases) || 1;
+        // En la muestra se elige como en el diseño. Conectada, lo decide el
+        // panel: solo con la función `cantidad` prendida.
+        let eligeCantidad = true;
+        // Mientras el invitado no toque los números, la cantidad sigue a los
+        // pases: si los novios corrigen de 4 a 5, confirma 5.
+        let eligioAMano = false;
+
+        const mostrar = (paso: "formulario" | "gracias") => {
+            formulario.hidden = paso !== "formulario";
+            gracias.hidden = paso !== "gracias";
+        };
+
+        function agradecer(viene: boolean, cantidad: number) {
+            if (tituloGracias) tituloGracias.textContent = textoTituloGracias;
+            if (iconoGracias) iconoGracias.style.display = "";
+            if (viene) {
+                respuesta.textContent = `${asistiran(cantidad)}.`;
+                detalle.textContent =
+                    "Te esperamos el 29 de noviembre para celebrar juntos.";
+            } else {
+                respuesta.textContent = "Lamentamos que no puedas acompañarnos.";
+                detalle.textContent =
+                    "Gracias por avisarnos. Te llevamos en el corazón ese día.";
+            }
+            mostrar("gracias");
+        }
+
+        // La base no contestó: se avisa en vez de agradecer, para que el
+        // invitado no crea que quedó confirmado
+        function avisarFallo() {
+            if (tituloGracias) tituloGracias.textContent = "No se pudo enviar";
+            if (iconoGracias) iconoGracias.style.display = "none";
+            respuesta.textContent = "No pudimos guardar tu respuesta.";
+            detalle.textContent =
+                "Revisa tu conexión e inténtalo de nuevo en un momento.";
+            mostrar("gracias");
+        }
+
+        // Cuántos van a ir según lo marcado, dentro de los pases
+        function elegida(): number {
+            if (!eligeCantidad) return pases;
+            const marcada = Number(new FormData(formulario).get("asistentes"));
+            if (!Number.isInteger(marcada) || marcada < 1) return pases;
+            return Math.min(marcada, pases);
+        }
+
+        // Un botón por pase. Se copia el que ya está dibujado para que
+        // conserve los estilos del componente.
+        function pintarCantidades(marcada: number) {
+            if (!cantidades) return;
+            const molde = cantidades.querySelector(".c-cantidad");
+            if (!molde) return;
+
+            if (cantidades.querySelectorAll(".c-cantidad").length !== pases) {
+                const nuevos = Array.from({ length: pases }, (_, i) => {
+                    const copia = molde.cloneNode(true) as HTMLElement;
+                    const radio = copia.querySelector("input")!;
+                    radio.value = String(i + 1);
+                    radio.removeAttribute("checked");
+                    const numero = copia.querySelector("span");
+                    if (numero) numero.textContent = String(i + 1);
+                    return copia;
+                });
+                cantidades.replaceChildren(...nuevos);
+            }
+
+            cantidades
+                .querySelectorAll<HTMLInputElement>('input[name="asistentes"]')
+                .forEach((r) => (r.checked = Number(r.value) === marcada));
+        }
+
+        cantidades?.addEventListener("change", () => (eligioAMano = true));
+
+        function llenar(inv: Invitado, primeraVez: boolean) {
+            const anterior = elegida();
+            if (Number.isInteger(inv.pases) && inv.pases > 0) pases = inv.pases;
+            ventana!.dataset.pases = String(pases);
+
+            ventana!
+                .querySelectorAll(".c-nombre")
+                .forEach((el) => (el.textContent = inv.nombre));
+            const numero = ventana!.querySelector(".c-reservado:not(.c-respuesta) strong");
+            const palabra = ventana!.querySelector(".c-palabra");
+            if (numero) numero.textContent = String(pases);
+            if (palabra) palabra.textContent = pasesReservados(pases);
+
+            // Se compara con === true: las bodas que no tienen la clave
+            // confirman con todos sus pases, como antes
+            eligeCantidad =
+                (inv.funciones as { cantidad?: boolean } | undefined)?.cantidad ===
+                true;
+            for (const el of [pregunta, cantidades]) {
+                if (el) el.style.display = eligeCantidad ? "" : "none";
+            }
+
+            let marcada: number;
+            if (primeraVez && inv.asisten && inv.asisten > 0) {
+                // Lo que ya había respondido
+                marcada = Math.min(inv.asisten, pases);
+                eligioAMano = true;
+            } else {
+                marcada = eligioAMano ? Math.min(anterior, pases) : pases;
+            }
+            pintarCantidades(marcada);
+
+            // Si ya respondió, se le muestra su respuesta en vez del
+            // formulario. Con la ventana abierta no se le cambia el paso
+            // en la cara.
+            if (ventana!.open) return;
+            if (inv.confirmado === true) {
+                agradecer(true, inv.asisten && inv.asisten > 0 ? inv.asisten : pases);
+            } else if (inv.confirmado === false) {
+                agradecer(false, 0);
+            } else {
+                mostrar("formulario");
+            }
+        }
+
+        // Cuál de las dos formas de confirmar se ve en la tarjeta
+        let conFormulario = !conectada;
+        function usarFormulario(si: boolean) {
+            if (si === conFormulario) return;
+            conFormulario = si;
+            document
+                .querySelectorAll<HTMLElement>("#despedida [data-whatsapp]")
+                .forEach((el) => (el.style.display = si ? "none" : ""));
+            const botones = document.getElementById("botones-formulario");
+            if (botones) botones.style.display = si ? "" : "none";
+            if (!si && ventana!.open) ventana!.close();
+            ScrollTrigger.refresh();
+        }
+
+        function alLlegar(inv: Invitado | null, primeraVez: boolean) {
+            // Sin invitado (sin ?i=, borrado o sin conexión) queda como está
+            if (!inv) return;
+
+            // Boda sin la confirmación contratada: se queda con WhatsApp, con
+            // el nombre del invitado ya escrito
+            if (inv.funciones && inv.funciones.confirmacion === false) {
+                usarFormulario(false);
+                const casilla = document.getElementById(
+                    "confirmar-nombre",
+                ) as HTMLInputElement | null;
+                if (casilla && !casilla.value.trim() && inv.nombre) {
+                    casilla.value = inv.nombre;
+                    casilla.dispatchEvent(new Event("input"));
+                }
+                return;
+            }
+
+            llenar(inv, primeraVez);
+            usarFormulario(true);
+        }
+
+        if (conectada) {
+            datosInvitado().then((inv) => alLlegar(inv, true));
+            alCambiarInvitado((inv) => alLlegar(inv, false));
+        }
+
+        abrir.addEventListener("click", () => {
+            if (!ventana.open) ventana.showModal();
+        });
+        ventana
+            .querySelector(".c-cerrar")!
+            .addEventListener("click", () => ventana.close());
+        // Tocar afuera de la ventana la cierra
+        ventana.addEventListener("click", (e) => {
+            if (e.target === ventana) ventana.close();
+        });
+
+        let enviando = false;
+        formulario.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (enviando) return;
+            const viene =
+                (e.submitter as HTMLButtonElement | null)?.value !== "no";
+            const cantidad = elegida();
+
+            // La muestra no guarda nada
+            if (!conectada) {
+                agradecer(viene, cantidad);
+                return;
+            }
+
+            enviando = true;
+            envios.forEach((b) => (b.disabled = true));
+            if (viene && textoConfirmar) textoConfirmar.textContent = "Enviando...";
+
+            // Nunca lanza: si falla devuelve null
+            const fila = viene
+                ? await confirmarAsistencia(true, cantidad)
+                : await confirmarAsistencia(false);
+
+            enviando = false;
+            envios.forEach((b) => (b.disabled = false));
+            if (textoConfirmar) textoConfirmar.textContent = textoBotonConfirmar;
+
+            if (!fila) {
+                avisarFallo();
+                return;
+            }
+            agradecer(
+                viene,
+                viene && fila.asisten && fila.asisten > 0 ? fila.asisten : cantidad,
+            );
+        });
+
+        ventana
+            .querySelector(".c-cambiar")!
+            .addEventListener("click", () => mostrar("formulario"));
+    });
 
     // Los botones con "#" (modelo de muestra) no hacen nada: sin esto, el
     // "#" sube la página hasta arriba
